@@ -135,9 +135,6 @@ header nav ul li a {
 header nav ul li a:hover {
     background-color: var(--accent);
     color: var(--primary);
-}
-
-header nav ul li a:hover {
     scale: 1.1;
     box-shadow: 0rem 0.1rem 1rem 0.1rem rgb(180, 178, 178);
     border: 0.2rem solid var(--accent);

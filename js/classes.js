@@ -76,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const setupSorting = () => {
+        const sortDirection = {};
         const headers = document.querySelectorAll("th");
         const fields = ["name", "trainer", "day", "time", "duration", "difficulty", null];
 

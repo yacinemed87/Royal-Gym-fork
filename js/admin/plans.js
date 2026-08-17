@@ -161,6 +161,15 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// ── Expose functions to global window object for HTML onclick handlers ──
+window.openAddModal = openAddModal;
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
+window.closeModal = closeModal;
+window.closeDeleteModal = closeDeleteModal;
+window.confirmDelete = confirmDelete;
+window.savePlan = savePlan;
+
 // ── Search listener ──
 document.getElementById("plan-search").addEventListener("input", renderPlans);
 

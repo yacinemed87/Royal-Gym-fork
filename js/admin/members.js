@@ -1,55 +1,79 @@
+const API = '../backend/members.php';
 
+// ── Load and render members from the database ─────────────────────────────────
+async function renderMembers() {
+  const response = await fetch(API);
+  let members = await response.json();
 
-let editingIndex = null;
+  const search = document.getElementById('member-search').value.toLowerCase();
+  const filter = document.getElementById('plan-filter').value;
 
-function getMembers() {
-  let data = localStorage.getItem("members");
-  let members = JSON.parse(data);
-  return members || [];
-}
-
-function saveMembers(members) {
-  localStorage.setItem("members", JSON.stringify(members));
-}
-
-function renderMembers() {
-  let members = getMembers();
-  let table = document.getElementById("members-tbody");
-  table.innerHTML = "";
-
-  let search = document.getElementById("member-search").value.toLowerCase();
-  let filter = document.getElementById("plan-filter").value;
-
-
-  if (search !== "") {
+  if (search !== '') {
     members = members.filter(m =>
       m.name.toLowerCase().includes(search) ||
       m.email.toLowerCase().includes(search)
-    )
+    );
   }
-  if (filter !== "All") {
+  if (filter !== 'All') {
     members = members.filter(m => m.plan === filter);
   }
 
-
+  const table = document.getElementById('members-tbody');
   table.innerHTML = members.map(member => `
-    <tr> 
-      <td>${member.name}</td>
-      <td>${member.gender}</td>
-      <td>${member.email}</td>
-      <td>${member.phone}</td>
-      <td><span class="badge badge-${member.plan.toLowerCase()}">${member.plan}</span></td>
-      <td>${member.joinDate} </td>
-      <td>
-        <button class="btn btn-edit" onclick="openEditModal(${member.id})">Edit</button>
-        <button class="btn btn-delete" onclick="openDeleteModal(${member.id})">Delete</button>
-      </td>
-    </tr>
-  `).join("");
-  document.getElementById("member-count").textContent = members.length;
+        <tr>
+            <td>${member.name}</td>
+            <td>${member.gender}</td>
+            <td>${member.email}</td>
+            <td>${member.phone}</td>
+            <td><span class="badge badge-${member.plan ? member.plan.toLowerCase() : ''}">${member.plan || '—'}</span></td>
+            <td>${member.joinDate}</td>
+            <td>
+                <button class="btn btn-edit" onclick="openEditModal(${member.id})">Edit</button>
+                <button class="btn btn-delete" onclick="openDeleteModal(${member.id})">Delete</button>
+            </td>
+        </tr>
+    `).join('');
+
+  document.getElementById('member-count').textContent = members.length;
 }
 
+// ── Modal state ───────────────────────────────────────────────────────────────
+let editingId = null;
 let deletingId = null;
+
+// ── Add modal ─────────────────────────────────────────────────────────────────
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = 'Add Member';
+  document.getElementById('inputName').value = '';
+  document.getElementById('inputEmail').value = '';
+  document.getElementById('inputPhone').value = '';
+  document.getElementById('inputGender').value = 'Male';
+  document.getElementById('inputPlan').value = 'Starter';
+  document.getElementById('memberModal').classList.remove('hidden');
+}
+
+// ── Edit modal — fetch that one member's data ─────────────────────────────────
+async function openEditModal(id) {
+  editingId = id;
+  const response = await fetch(API);
+  const members = await response.json();
+  const member = members.find(m => m.id == id);
+
+  document.getElementById('modalTitle').textContent = 'Edit Member';
+  document.getElementById('inputName').value = member.name;
+  document.getElementById('inputGender').value = member.gender || 'Male';
+  document.getElementById('inputEmail').value = member.email;
+  document.getElementById('inputPlan').value = member.plan || 'Starter';
+  document.getElementById('inputPhone').value = member.phone || '';
+  document.getElementById('memberModal').classList.remove('hidden');
+}
+
+// ── Close modals ──────────────────────────────────────────────────────────────
+function closeModal() {
+  document.getElementById('memberModal').classList.add('hidden');
+  document.getElementById('errorMsg').classList.add('hidden');
+}
 
 function openDeleteModal(id) {
   deletingId = id;
@@ -61,104 +85,92 @@ function closeDeleteModal() {
   deletingId = null;
 }
 
-function confirmDelete() {
-  let members = getMembers();
-  members = members.filter(m => m.id !== deletingId);
-  saveMembers(members);
-  closeDeleteModal();
-  renderMembers();
-}
+// ── Save (add or update) ──────────────────────────────────────────────────────
+async function saveMember() {
+  const name = document.getElementById('inputName').value.trim();
+  const email = document.getElementById('inputEmail').value.trim();
+  const plan = document.getElementById('inputPlan').value;
+  const gender = document.getElementById('inputGender').value;
+  const phone = document.getElementById('inputPhone').value.trim();
 
-
-let editingId = null;
-
-function openAddModal() {
-  editingId = null
-  document.getElementById("modalTitle").textContent = "Add Member";
-  document.getElementById("inputName").value = "";
-  document.getElementById("inputEmail").value = "";
-  document.getElementById("inputPlan").value = "Bronze";
-  document.getElementById("memberModal").classList.remove("hidden");
-}
-
-function openEditModal(id) {
-  editingId = id;
-  let members = getMembers();
-  let member = members.find(m => m.id === id);
-
-  document.getElementById("modalTitle").textContent = "Edit Member"
-  document.getElementById("inputName").value = member.name;
-  document.getElementById("inputGender").value = member.gender;
-  document.getElementById("inputEmail").value = member.email;
-  document.getElementById("inputPlan").value = member.plan;
-  document.getElementById("inputPhone").value = member.phone;
-  document.getElementById("memberModal").classList.remove("hidden");
-}
-
-function closeModal() {
-  document.getElementById('memberModal').classList.add('hidden');
-  document.getElementById('errorMsg').classList.add('hidden');
-}
-
-function saveMember() {
-  let name = document.getElementById("inputName").value;
-  let email = document.getElementById("inputEmail").value;
-  let plan = document.getElementById("inputPlan").value;
-  let gender = document.getElementById("inputGender").value;
-  let phone = document.getElementById("inputPhone").value;
-  if (name === "" || email === "" || plan === "" || phone === "" || gender === "") {
-    alert("Please fill in all the fields.")
+  if (!name || !email || !plan || !phone || !gender) {
+    alert('Please fill in all the fields.');
     return;
   }
 
-  let members = getMembers();
+  const payload = { name, gender, email, phone, plan };
 
-  let duplicate = members.find(m => m.email === email && m.id !== editingId)
-  if (duplicate) {
-    document.getElementById("errorMsg").classList.remove("hidden");
-    return;
-  }
-
+  let response;
   if (editingId) {
-    members = members.map(m => m.id === editingId ? { ...m, name, email, plan } : m);
-    editingId = null
-  }
-  else {
-    let newMember = {
-      id: Date.now(),
-      name: name,
-      gender: gender,
-      email: email,
-      phone: phone,
-      plan: plan,
-      joinDate: new Date().toISOString().slice(0, 10)
-    }
-    members.push(newMember);
+    // PUT — update existing
+    payload.id = editingId;
+    response = await fetch(API, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } else {
+    // POST — add new
+    response = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
   }
 
-  saveMembers(members);
+  const result = await response.json();
+
+  if (response.status === 409) {
+    document.getElementById('errorMsg').classList.remove('hidden');
+    return;
+  }
+
+  if (!response.ok) {
+    alert('Error: ' + result.error);
+    return;
+  }
+
   closeModal();
   renderMembers();
 }
 
-document.getElementById("memberModal").addEventListener("click", (e) => {
-  if (e.target === document.getElementById("memberModal")) {
-    closeModal();
+// ── Delete ────────────────────────────────────────────────────────────────────
+async function confirmDelete() {
+  const response = await fetch(API, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: deletingId })
+  });
+
+  if (response.ok) {
+    closeDeleteModal();
+    renderMembers();
+  } else {
+    const result = await response.json();
+    alert('Error: ' + result.error);
   }
-});
+}
 
-
-
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    let modal = document.getElementById("memberModal");
-    if (modal.display !== "none") {
-      closeModal();
-    }
-  }
-})
-
+// ── Event listeners ───────────────────────────────────────────────────────────
 document.getElementById('member-search').addEventListener('input', renderMembers);
 document.getElementById('plan-filter').addEventListener('change', renderMembers);
 
+document.getElementById('memberModal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('memberModal')) closeModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') { closeModal(); closeDeleteModal(); }
+});
+
+// Expose for HTML onclick attributes
+window.openAddModal = openAddModal;
+window.openEditModal = openEditModal;
+window.openDeleteModal = openDeleteModal;
+window.closeModal = closeModal;
+window.closeDeleteModal = closeDeleteModal;
+window.saveMember = saveMember;
+window.confirmDelete = confirmDelete;
+
+// ── Initial load ──────────────────────────────────────────────────────────────
 renderMembers();

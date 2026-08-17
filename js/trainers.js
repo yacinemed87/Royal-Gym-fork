@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = trainerCard.querySelector("figcaption").textContent;
       const specialty = trainerCard.querySelector("h3").textContent;
 
-      alert(Trainer: ${ name }\n${ specialty });
+      alert(`Trainer: ${name}\n${specialty}`);
     });
   });
 

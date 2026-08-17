@@ -16,7 +16,7 @@
 
 <body>
 	<header>
-		<a href="./index.html">
+		<a href="../index.html">
 			<span class="name">Royal Gym</span>
 			<img src="../assets/images/logo.png" alt="Royal Gym Logo" class="logo" />
 		</a>
@@ -35,96 +35,8 @@
 	<section aria-labelledby="plans-heading">
 		<h2 id="plans-heading" class="sr-only">Membership Plans</h2>
 
-		<div class="plans-grid">
-			<article class="plan-card" aria-labelledby="bronze-title">
-				<div class="plan-title">
-					<h3 id="bronze-title">Starter</h3>
-					<div class="plan-price">
-						1900 DA<span class="price-unit">/month</span>
-					</div>
-				</div>
-
-				<ul class="plan-features">
-					<li>3 gym & 1 cardio visits per week</li>
-					<li>Unlimited access to premium equipment</li>
-					<li>Access to equipped showers</li>
-				</ul>
-
-				<dl>
-					<dt>Storage</dt>
-					<dd>Standard locker</dd>
-					<dt>Support</dt>
-					<dd>Standard support</dd>
-				</dl>
-
-				<div class="plan-cta">
-					<span class="muted">Ideal for new members</span>
-					<button class="btn-ghost" aria-label="Choose Bronze">
-						Choose
-					</button>
-				</div>
-			</article>
-
-			<article class="plan-card" aria-labelledby="silver-title">
-				<div class="plan-title">
-					<h3 id="silver-title">Elite</h3>
-					<div class="plan-price">
-						2900 DA<span class="price-unit">/month</span>
-					</div>
-				</div>
-
-				<ul class="plan-features">
-					<li>5 gym & 5 cardio visits per week</li>
-					<li>All Starter benefits + Free water</li>
-					<li>Access to sauna and steam rooms</li>
-					<li>Meal plan by a professional nutritionist</li>
-				</ul>
-
-				<dl>
-					<dt>Storage</dt>
-					<dd>Premium locker</dd>
-					<dt>Support</dt>
-					<dd>Priority support</dd>
-				</dl>
-
-				<div class="plan-cta">
-					<span class="muted">Best balance of value & perks</span>
-					<button class="btn-ghost" aria-label="Choose Silver">
-						Choose
-					</button>
-				</div>
-			</article>
-
-			<article class="plan-card" aria-labelledby="gold-title">
-				<div class="plan-title">
-					<h3 id="gold-title">Royale</h3>
-					<div class="plan-price">
-						4900 DA<span class="price-unit">/month</span>
-					</div>
-				</div>
-
-				<ul class="plan-features">
-					<li>Unlimited gym & cardio access</li>
-					<li>All Elite benefits + Personal Training Zone</li>
-					<li>Monthly 1-on-1 coaching</li>
-					<li>Recovery therapists & massage services</li>
-					<li>Food discounts & Free energy drinks</li>
-				</ul>
-
-				<dl>
-					<dt>Storage</dt>
-					<dd>Private locker + towel service</dd>
-					<dt>Support</dt>
-					<dd>Dedicated concierge</dd>
-				</dl>
-
-				<div class="plan-cta">
-					<span class="muted">For members who demand the best</span>
-					<button class="btn-ghost" aria-label="Choose Gold">
-						Choose
-					</button>
-				</div>
-			</article>
+		<div class="plans-grid" id="plans-grid">
+			<!-- Rendered by membership.js from data.js -->
 		</div>
 	</section>
 
@@ -180,24 +92,8 @@
 				<fieldset class="mt-12">
 					<legend>Choose a Plan</legend>
 
-					<div class="custom-controls" role="radiogroup" aria-label="Membership plans">
-						<label class="custom" title="Bronze">
-							<input type="radio" name="plan" value="Starter" required />
-							<span class="control radio" aria-hidden="true"></span>
-							<span>Starter</span>
-						</label>
-
-						<label class="custom" title="Silver">
-							<input type="radio" name="plan" value="Elite" checked />
-							<span class="control radio" aria-hidden="true"></span>
-							<span>Elite</span>
-						</label>
-
-						<label class="custom" title="Gold">
-							<input type="radio" name="plan" value="Royale" />
-							<span class="control radio" aria-hidden="true"></span>
-							<span>Royale</span>
-						</label>
+					<div class="custom-controls" id="plan-radios" role="radiogroup" aria-label="Membership plans">
+						<!-- Rendered by membership.js from data.js -->
 					</div>
 				</fieldset>
 
@@ -241,7 +137,7 @@
 		<p>&copy; 2026 Royal Gym. All rights reserved.</p>
 	</footer>
 
-	<script src="../js/membership.js"></script>
+	<script type="module" src="../js/membership.js"></script>
 	<script> //need explanation
 		document.querySelector('.menu-toggle').addEventListener('click', function () {
 			document.querySelector('header nav').classList.toggle('open');

@@ -89,55 +89,8 @@
 		</section>
 		<section class="membership">
 			<h2>Membership Plans</h2>
-			<div class="membership-cards-container">
-				<article class="membership-card starter">
-					<h3>Starter</h3>
-					<p class="price">1900 DA/Month</p>
-					<dl>
-						<dt>Equipment & Facilities</dt>
-						<dd>Premium equipment & Showers</dd>
-						<dt>Coach Help</dt>
-						<dd>Standard support</dd>
-						<dt>Locker Access</dt>
-						<dd>Standard locker</dd>
-						<dt>Gym & Cardio</dt>
-						<dd>3 gym / 1 cardio per week</dd>
-					</dl>
-				</article>
-				<article class="membership-card elite">
-					<h3>Elite</h3>
-					<p class="price">2900 DA/Month</p>
-					<dl>
-						<dt>Equipment & Facilities</dt>
-						<dd>Full access + Sauna & Steam</dd>
-						<dt>Coach Help</dt>
-						<dd>Priority support & Meal plan</dd>
-						<dt>Locker Access</dt>
-						<dd>Premium locker</dd>
-						<dt>Gym & Cardio</dt>
-						<dd>5 gym / 5 cardio per week</dd>
-						<dt>Extras</dt>
-						<dd>Free water</dd>
-					</dl>
-					<p class="price">Recommended</p>
-				</article>
-				<article class="membership-card royal">
-					<h3>Royal</h3>
-					<p class="price">4900 DA/Month</p>
-					<dl>
-						<dt>Equipment & Facilities</dt>
-						<dd>Personal Training Zone</dd>
-						<dt>Coach Help</dt>
-						<dd>1-on-1 coaching & Concierge</dd>
-						<dt>Locker Access</dt>
-						<dd>Private locker + towel service</dd>
-						<dt>Gym & Cardio</dt>
-						<dd>Unlimited access</dd>
-						<dt>Extras</dt>
-						<dd>Recovery therapists & Massages</dd>
-						<dd>Food discounts & Free energy drinks</dd>
-					</dl>
-				</article>
+			<div class="membership-cards-container" id="plans-preview">
+				<!-- Rendered by data.js -->
 			</div>
 		</section>
 		<section class="opening-hours">
@@ -186,6 +139,42 @@
 		document.querySelector('.menu-toggle').addEventListener('click', function () {
 			document.querySelector('header nav').classList.toggle('open');
 		});
+	</script>
+	<script type="module">
+		import { membershipPlans } from './js/data.js';
+
+		function getPlans() {
+			const stored = localStorage.getItem('plans');
+			if (stored) {
+				try {
+					const parsed = JSON.parse(stored);
+					if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+				} catch (_) {}
+			}
+			return membershipPlans;
+		}
+
+		const container = document.getElementById('plans-preview');
+		const highlightIndex = 1; // Recommended plan index
+		const plans = getPlans();
+
+		container.innerHTML = plans.map((plan, i) => {
+			const cardClass = i === highlightIndex ? 'membership-card elite' : 'membership-card';
+			const features = plan.features.map(f => `<dd>${f}</dd>`).join('');
+			const recommended = i === highlightIndex
+				? `<p class="price">Recommended</p>`
+				: '';
+			return `
+				<article class="${cardClass}">
+					<h3>${plan.name}</h3>
+					<p class="price">${Number(plan.price).toLocaleString()} DA / ${plan.duration}</p>
+					<dl>
+						<dt>Features</dt>
+						${features}
+					</dl>
+					${recommended}
+				</article>`;
+		}).join('');
 	</script>
 </body>
 

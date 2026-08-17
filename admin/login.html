@@ -18,7 +18,7 @@
 				<p>Please enter your credentials to manage the system.</p>
 			</header>
 
-			<form action="admin-dashboard.html" method="POST">
+			<form id="login-form" action="dashboard.html" method="GET">
 				<fieldset>
 					<legend>Login Details</legend>
 					<div class="form-group">
@@ -33,9 +33,8 @@
 							required />
 					</div>
 
-					<div id="error-display" style="color: #ff0000; margin-bottom: 10px"></div>
-					<!-- <button type="submit">Login to Dashboard</button> -->
-					<a href="dashboard.html" class="button">Login to Dashboard</a>
+					<div id="error-display" style="color: #ff4d4d; margin-bottom: 10px"></div>
+					<button type="submit" class="button">Login to Dashboard</button>
 				</fieldset>
 			</form>
 
@@ -47,6 +46,22 @@
 			</footer>
 		</section>
 	</main>
+
+	<script>
+		document.getElementById('login-form').addEventListener('submit', function (e) {
+			e.preventDefault();
+			const user = document.getElementById('admin-username').value.trim();
+			const pass = document.getElementById('admin-password').value.trim();
+			const err = document.getElementById('error-display');
+
+			if (!user || !pass) {
+				err.textContent = 'Please enter both username and password.';
+				return;
+			}
+			err.textContent = '';
+			window.location.href = 'dashboard.html';
+		});
+	</script>
 </body>
 
 </html>

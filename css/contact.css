@@ -58,6 +58,17 @@ textarea {
     min-height: 120px;
 }
 
+.error-border {
+    border: 2px solid #ff4d4d !important;
+}
+
+.error-msg {
+    color: #ff4d4d;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 4px;
+}
+
 button {
     background: #1b263b;
     color: white;
