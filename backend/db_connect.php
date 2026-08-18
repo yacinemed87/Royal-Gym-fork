@@ -1,8 +1,8 @@
 <?php
 // Default XAMPP credentials
 $servername = "localhost";
-$username = "root"; 
-$password = "";   
+$username = "ugym"; 
+$password = "yacine123";   
 $dbname = "royal-gym";
 
 // Create connection
