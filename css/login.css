@@ -133,6 +133,8 @@ input:focus {
 }
 
 #error-display {
+	color: #ff4d4d;
+	margin-bottom: 10px;
 	font-weight: bold;
 	min-height: 20px;
 	font-size: 0.85rem;

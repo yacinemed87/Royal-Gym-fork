@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/../../backend/config.php";
+require_once __DIR__ . "/../../backend/gyms.php";
 ?>
 
 <footer>
@@ -17,7 +17,7 @@ require_once __DIR__ . "/../../backend/config.php";
         </section>
     <?php endif; ?>
 
-    <p>&copy; 2026 Royal Gym. All rights reserved.</p>
+    <p>&copy; 2026 <?php echo current_gym()["name"]; ?>. All rights reserved.</p>
 
     <?php if (isset($current_page) && $current_page === "home") : ?>
         <a href="<?php echo BASE_URL; ?>/login.php">Admin Login</a>

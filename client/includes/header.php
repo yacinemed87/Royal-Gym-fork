@@ -1,19 +1,20 @@
 <?php
-include __DIR__ . "/../../backend/config.php"
+require_once __DIR__ . "/../../backend/gyms.php";
+$gym = current_gym();
 ?>
 
 
 <header>
-    <a href="<?php echo BASE_URL; ?>/index.php">
-        <span class="name">Royal Gym</span>
-        <img src="<?php echo BASE_URL; ?>/assets/images/logo.png" alt="Royal Gym Logo" class="logo">
+    <a href="<?php echo BASE_URL . $gym["home"]; ?>">
+        <span class="name"><?php echo $gym["name"]; ?></span>
+        <img src="<?php echo BASE_URL; ?>/assets/images/<?php echo $gym["logo"]; ?>" alt="<?php echo $gym["name"]; ?> Logo" class="logo">
     </a>
     <button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
     <nav>
         <ul>
-            <li><a href="<?php echo BASE_URL; ?>/index.php" class="<?php if ($current_page == "home") {
-                                                                        echo "active";
-                                                                    } ?>">Home</a></li>
+            <li><a href="<?php echo BASE_URL . $gym["home"]; ?>" class="<?php if ($current_page == "home") {
+                                                                            echo "active";
+                                                                        } ?>">Home</a></li>
             <li><a href="<?php echo BASE_URL; ?>/client/classes.php" class="<?php if ($current_page == "classes") {
                                                                                 echo "active";
                                                                             } ?>">Classes</a></li>
