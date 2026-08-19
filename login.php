@@ -14,12 +14,14 @@ if (($_SERVER["REQUEST_METHOD"] ?? "") === "POST") {
 	if ($gym_input === "" || $email_input === "" || $password === "") {
 		$error = "Please fill in the gym, your email and your password.";
 	} else {
-		// The gym name is the database name. $gym_db is the name that matched.
-		$conn = gym_db_connect($gym_input, $gym_db);
+		// Look the gym up in the registry, then open its own database.
+		$gym  = gym_by_name($gym_input);
+		$conn = $gym === null ? null : gym_db_connect($gym);
 
 		if ($conn === null) {
 			$error = "No gym found with that name.";
 		} else {
+			$gym_db = $gym["db_name"];
 			try {
 				$stmt = $conn->prepare(
 					"SELECT id, name, email, password, role FROM members WHERE email = ? LIMIT 1"

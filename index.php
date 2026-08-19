@@ -1,5 +1,8 @@
 <?php
 $current_page = 'home';
+$active_gym   = 'royal-gym';
+require_once __DIR__ . "/backend/gyms.php";
+$gym = current_gym();
 ?>
 
 <!DOCTYPE html>
@@ -10,8 +13,8 @@ $current_page = 'home';
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./css/index.css">
 
-	<title>Royal Gym</title>
-	<link rel="icon" type="image/png" href="assets/images/logo.png">
+	<title><?php echo htmlspecialchars($gym["name"]); ?></title>
+	<link rel="icon" type="image/png" href="assets/images/<?php echo htmlspecialchars($gym["logo"]); ?>">
 </head>
 
 <body>
@@ -20,8 +23,8 @@ $current_page = 'home';
 	?>
 	<main>
 		<section class="hero">
-			<h1>Royal Gym</h1>
-			<p class="tagline">Luxury fitness membership — gold service, elite results</p>
+			<h1><?php echo htmlspecialchars($gym["name"]); ?></h1>
+			<p class="tagline"><?php echo htmlspecialchars($gym["tagline"]); ?></p>
 			<a href="./client/membership.php">Sign Up Today</a>
 		</section>
 		<section class="facilities">

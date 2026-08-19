@@ -1,10 +1,8 @@
 <?php
-$current_page = "home";
-$active_gym = [
-	"name" => "PowerFitness",
-	"logo" => "logo2.png",
-	"home" => "/power-fitness.php",
-];
+$current_page = 'home';
+$active_gym   = 'power-fitness';
+require_once __DIR__ . "/backend/gyms.php";
+$gym = current_gym();
 ?>
 
 <!DOCTYPE html>
@@ -15,8 +13,8 @@ $active_gym = [
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="./css/index.css">
 
-	<title>PowerFitness</title>
-	<link rel="icon" type="image/png" href="assets/images/logo2.png">
+	<title><?php echo htmlspecialchars($gym["name"]); ?></title>
+	<link rel="icon" type="image/png" href="assets/images/<?php echo htmlspecialchars($gym["logo"]); ?>">
 </head>
 
 <body>
@@ -25,8 +23,8 @@ $active_gym = [
 	?>
 	<main>
 		<section class="hero">
-			<h1>PowerFitness</h1>
-			<p class="tagline">Luxury fitness membership — gold service, elite results</p>
+			<h1><?php echo htmlspecialchars($gym["name"]); ?></h1>
+			<p class="tagline"><?php echo htmlspecialchars($gym["tagline"]); ?></p>
 			<a href="./client/membership.php">Sign Up Today</a>
 		</section>
 		<section class="facilities">

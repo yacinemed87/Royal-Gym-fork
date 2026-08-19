@@ -5,14 +5,14 @@ $gym = current_gym();
 
 
 <header>
-    <a href="<?php echo BASE_URL . $gym["home"]; ?>">
+    <a href="<?php echo BASE_URL . $gym["home_page"]; ?>">
         <span class="name"><?php echo $gym["name"]; ?></span>
         <img src="<?php echo BASE_URL; ?>/assets/images/<?php echo $gym["logo"]; ?>" alt="<?php echo $gym["name"]; ?> Logo" class="logo">
     </a>
     <button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
     <nav>
         <ul>
-            <li><a href="<?php echo BASE_URL . $gym["home"]; ?>" class="<?php if ($current_page == "home") {
+            <li><a href="<?php echo BASE_URL . $gym["home_page"]; ?>" class="<?php if ($current_page == "home") {
                                                                             echo "active";
                                                                         } ?>">Home</a></li>
             <li><a href="<?php echo BASE_URL; ?>/client/classes.php" class="<?php if ($current_page == "classes") {
