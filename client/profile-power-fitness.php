@@ -1,10 +1,6 @@
 <?php
 $current_page = 'profile';
-$active_gym = [
-	"name" => "PowerFitness",
-	"logo" => "logo2.png",
-	"home" => "/power-fitness.php",
-];
+$active_gym   = 'power-fitness';
 ?>
 
 <!doctype html>
