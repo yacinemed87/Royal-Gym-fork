@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Members Management | Royal Gym</title>
+		<link rel="stylesheet" href="../css/admin/admin.css" />
+		<link rel="icon" type="image/png" href="../assets/images/logo.png" />
+	</head>
+
+	<body>
+		<!-- Sidebar -->
+		<aside class="sidebar">
+			<a href="../index.php" class="sidebar-brand">
+				Royal Gym
+				<img src="../assets/images/logo.png" alt="Royal Gym Logo" />
+			</a>
+			<ul class="sidebar-nav">
+				<li><a href="./dashboard.php">Dashboard</a></li>
+				<li><a href="./plans.php">Plans</a></li>
+				<li><a href="./members.php" class="active">Members</a></li>
+				<div class="nav-divider"></div>
+				<li><a href="../index.php">Return to Home</a></li>
+			</ul>
+		</aside>
+
+		<!-- Main Content -->
+		<div class="main-content">
+			<div class="page-header">
+				<h1>Members</h1>
+				<p>Manage gym members — add, edit, search, and remove</p>
+			</div>
+
+			<!-- Members Table -->
+			<div class="card">
+				<h2 class="card-title">All Members</h2>
+
+				<!-- Toolbar: search + filter -->
+				<div class="toolbar">
+					<input
+						type="text"
+						id="member-search"
+						placeholder="Search by name..."
+					/>
+					<select id="plan-filter">
+						<option value="All">All Plans</option>
+						<option value="Starter">Starter</option>
+						<option value="Elite">Elite</option>
+						<option value="Royal">Royal</option>
+					</select>
+					<button class="btn btn-gold" onclick="openAddModal()">
+						Add
+					</button>
+					<span class="count"
+						>Showing
+						<strong id="member-count">0</strong> members</span
+					>
+				</div>
+
+				<table>
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Gender</th>
+							<th>Email</th>
+							<th>Phone</th>
+							<th>Plan</th>
+							<th>Join Date</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody id="members-tbody">
+						<!-- Rendered by members.js -->
+					</tbody>
+				</table>
+			</div>
+
+			<footer class="admin-footer">
+				<p>
+					&copy; 2026 Royal Gym Management System. All rights
+					reserved.
+				</p>
+			</footer>
+		</div>
+
+		<div id="memberModal" class="modal-overlay hidden">
+			<div class="modal">
+				<div class="modal-header">
+					<h2 id="modalTitle">Add Member</h2>
+					<button class="modal-close" onclick="closeModal()">
+						✕
+					</button>
+				</div>
+
+				<div class="form-group">
+					<label class="label">Full Name</label>
+					<input
+						type="text"
+						id="inputName"
+						class="input"
+						placeholder="e.g. Sara Ahmed"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="label">Gender</label>
+					<select id="inputGender" class="input select">
+						<option value="Male">Male</option>
+						<option value="Female">Female</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label class="label">Email</label>
+					<input
+						type="email"
+						id="inputEmail"
+						class="input"
+						placeholder="e.g. sara@email.com"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="label">phone</label>
+					<input
+						id="inputPhone"
+						class="input"
+						placeholder="e.g. +213555050550"
+					/>
+				</div>
+				<div class="form-group">
+					<label class="label">Plan</label>
+					<select id="inputPlan" class="input select">
+						<option value="Starter">Starter</option>
+						<option value="Elite">Elite</option>
+						<option value="Royal">Royal</option>
+					</select>
+				</div>
+				<p class="error-msg hidden" id="errorMsg">
+					⚠ This email is already registered.
+				</p>
+
+				<div class="modal-footer">
+					<button class="btn btn-secondary" onclick="closeModal()">
+						Cancel
+					</button>
+					<button class="btn btn-primary" onclick="saveMember()">
+						Save
+					</button>
+				</div>
+			</div>
+		</div>
+		<!-- ========== DELETE CONFIRMATION MODAL ========== -->
+		<div id="deleteModal" class="modal-overlay hidden">
+			<div class="modal">
+				<h2>Delete Member?</h2>
+				<p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem">
+					This action cannot be undone.
+				</p>
+				<div class="modal-footer">
+					<button
+						class="btn btn-secondary"
+						onclick="closeDeleteModal()"
+					>
+						Cancel
+					</button>
+					<button class="btn btn-danger" onclick="confirmDelete()">
+						Delete
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Scripts -->
+		<script src="../js/admin/members.js"></script>
+	</body>
+</html>

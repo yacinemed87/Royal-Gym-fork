@@ -6,22 +6,22 @@
 		<title>Admin Dashboard | Royal Gym</title>
 		<link rel="stylesheet" href="../css/admin/admin.css" />
 		<link rel="stylesheet" href="../css/admin/dashboard.css" />
-    <link rel="icon" type="image/png" href="../assets/images/logo.png">
+		<link rel="icon" type="image/png" href="../assets/images/logo.png" />
 	</head>
 
 	<body>
 		<!-- Sidebar -->
 		<aside class="sidebar">
-			<a href="../index.html" class="sidebar-brand">
+			<a href="../index.php" class="sidebar-brand">
 				Royal Gym
 				<img src="../assets/images/logo.png" alt="Royal Gym Logo" />
 			</a>
 			<ul class="sidebar-nav">
-				<li><a href="./dashboard.html" class="active">Dashboard</a></li>
-				<li><a href="./plans.html">Plans</a></li>
-				<li><a href="./members.html">Members</a></li>
+				<li><a href="./dashboard.php" class="active">Dashboard</a></li>
+				<li><a href="./plans.php">Plans</a></li>
+				<li><a href="./members.php">Members</a></li>
 				<div class="nav-divider"></div>
-				<li><a href="../index.html">Return to Home</a></li>
+				<li><a href="../index.php">Return to Home</a></li>
 			</ul>
 		</aside>
 
@@ -101,7 +101,7 @@
 							<span class="chart-count" id="label-elite">0</span>
 						</div>
 						<div class="chart-row">
-							<span class="chart-label">Royale</span>
+							<span class="chart-label">Royal</span>
 							<div class="chart-track">
 								<div
 									class="chart-bar"

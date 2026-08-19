@@ -1,3 +1,7 @@
+<?php
+$current_page = 'home';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -7,31 +11,18 @@
 	<link rel="stylesheet" href="./css/index.css">
 
 	<title>Royal Gym</title>
-    <link rel="icon" type="image/png" href="assets/images/logo.png">
+	<link rel="icon" type="image/png" href="assets/images/logo.png">
 </head>
 
 <body>
-	<header>
-		<a href="./index.html">
-			<span class="name">Royal Gym</span>
-			<img src="./assets/images/logo.png" alt="Royal Gym Logo" class="logo">
-		</a>
-		<button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
-		<nav>
-			<ul>
-				<li><a href="./index.html" class="active">Home</a></li>
-				<li><a href="./client/classes.html">Classes</a></li>
-				<li><a href="./client/membership.html">Membership</a></li>
-				<li><a href="./client/trainers.html">Trainers</a></li>
-				<li><a href="./client/contact.html">Contact</a></li>
-			</ul>
-		</nav>
-	</header>
+	<?php
+	include __DIR__ . "/client/includes/header.php"
+	?>
 	<main>
 		<section class="hero">
 			<h1>Royal Gym</h1>
 			<p class="tagline">Luxury fitness membership — gold service, elite results</p>
-			<a href="./client/membership.html">Sign Up Today</a>
+			<a href="./client/membership.php">Sign Up Today</a>
 		</section>
 		<section class="facilities">
 			<h2>Facilities</h2>
@@ -119,29 +110,18 @@
 			</table>
 		</section>
 	</main>
-	<footer>
-		<section class="contact-details">
-			<h2>Our Contact Details</h2>
-			<address>
-				<p>Gym Management System</p>
-				<p>123 Side Street, Constantine, Algeria</p>
-				<p>+213561658876</p>
-				<p>contact@royalgym.dz</p>
-				<a href="#">Instagram</a>
-				<a href="#">Facebook</a>
-			</address>
-		</section>
-
-		<p>&copy; 2026 Gym Management System. All rights reserved.</p>
-		<a href="./admin/login.html">Admin Login</a>
-	</footer>
+	<?php
+	include __DIR__ . "/client/includes/footer.php"
+	?>
 	<script>
-		document.querySelector('.menu-toggle').addEventListener('click', function () {
+		document.querySelector('.menu-toggle').addEventListener('click', function() {
 			document.querySelector('header nav').classList.toggle('open');
 		});
 	</script>
 	<script type="module">
-		import { membershipPlans } from './js/data.js';
+		import {
+			membershipPlans
+		} from './js/data.js';
 
 		function getPlans() {
 			const stored = localStorage.getItem('plans');
@@ -161,9 +141,9 @@
 		container.innerHTML = plans.map((plan, i) => {
 			const cardClass = i === highlightIndex ? 'membership-card elite' : 'membership-card';
 			const features = plan.features.map(f => `<dd>${f}</dd>`).join('');
-			const recommended = i === highlightIndex
-				? `<p class="price">Recommended</p>`
-				: '';
+			const recommended = i === highlightIndex ?
+				`<p class="price">Recommended</p>` :
+				'';
 			return `
 				<article class="${cardClass}">
 					<h3>${plan.name}</h3>

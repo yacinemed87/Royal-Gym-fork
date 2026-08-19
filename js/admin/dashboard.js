@@ -41,14 +41,14 @@ const renderStats = () => {
 
   let starterCount = members.filter(m => m.plan === "Starter").length;
   let eliteCount = members.filter(m => m.plan === "Elite").length;
-  let royaleCount = members.filter(m => m.plan === "Royale").length;
+  let royalCount = members.filter(m => m.plan === "Royal").length;
 
   let popularPlan = "Starter";
   if (eliteCount > starterCount) {
     popularPlan = "Elite";
   }
-  if (royaleCount > eliteCount && royaleCount > starterCount) {
-    popularPlan = "Royale";
+  if (royalCount > eliteCount && royalCount > starterCount) {
+    popularPlan = "Royal";
   }
   document.getElementById("popular-plan").textContent = popularPlan;
 
@@ -80,7 +80,7 @@ const renderChart = () => {
 
   const starterCount = members.filter(m => m.plan === "Starter").length;
   const eliteCount = members.filter(m => m.plan === "Elite").length;
-  const royaleCount = members.filter(m => m.plan === "Royale").length;
+  const royalCount = members.filter(m => m.plan === "Royal").length;
 
   const total = members.length || 1;
 
@@ -90,8 +90,8 @@ const renderChart = () => {
   document.getElementById("bar-elite").style.width = `${(eliteCount / total) * 100}%`;
   document.getElementById("label-elite").textContent = eliteCount;
 
-  document.getElementById("bar-royal").style.width = `${(royaleCount / total) * 100}%`
-  document.getElementById("label-royal").textContent = royaleCount;
+  document.getElementById("bar-royal").style.width = `${(royalCount / total) * 100}%`
+  document.getElementById("label-royal").textContent = royalCount;
 };
 
 

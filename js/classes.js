@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td data-label="Time">${item.time}</td>
                     <td data-label="Duration">${item.duration} mins</td>
                     <td data-label="Level"><span class="badge ${item.difficulty.toLowerCase()}">${item.difficulty}</span></td>
-                    <td data-label="Actions"><a href="./trainers.html" class="btn-details">Details</a></td>
+                    <td data-label="Actions"><a href="./trainers.php" class="btn-details">Details</a></td>
                 </tr>
             `;
             tbody.insertAdjacentHTML('beforeend', row);

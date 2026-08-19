@@ -152,15 +152,6 @@ address {
     box-shadow: var(--shadow);
 }
 
-footer {
-    background: linear-gradient(180deg, var(--primary) 0%, var(--secondary) 100%);
-    color: var(--muted);
-    text-align: center;
-    padding: 20px 15px;
-    margin-top: 30px;
-    border-top: 1px solid var(--glass);
-}
-
 .hidden {
     opacity: 0;
     transform: translateY(30px);
@@ -251,9 +242,5 @@ footer {
     address {
         padding: 20px 15px;
         font-size: 0.9rem;
-    }
-
-    footer {
-        padding: 15px 10px;
     }
 }

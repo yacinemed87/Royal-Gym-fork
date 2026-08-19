@@ -1,3 +1,7 @@
+<?php
+$current_page = 'contact';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,24 +14,9 @@
 </head>
 
 <body>
-
-    <header>
-        <a href="../index.html">
-            <span class="name">Royal Gym</span>
-            <img src="../assets/images/logo.png" alt="Royal Gym Logo" class="logo" />
-        </a>
-        <button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
-        <nav>
-            <ul>
-                <li><a href="../index.html">Home</a></li>
-                <li><a href="./classes.html">Classes</a></li>
-                <li><a href="./membership.html">Membership</a></li>
-                <li><a href="./trainers.html">Trainers</a></li>
-                <li><a href="./contact.html" class="active">Contact</a></li>
-            </ul>
-        </nav>
-    </header>
-
+    <?php
+    include __DIR__ . "/includes/header.php"
+    ?>
     <main>
         <section>
             <h2>Send Us a Message</h2>
@@ -97,27 +86,13 @@
         </section>
     </main>
 
-    <footer>
-        <section class="contact-details">
-            <h2>Our Contact Details</h2>
-            <address>
-                Gym Management System
-                <br>
-                123 Fitness Street
-                <br>
-                Ali Mendjeli , n(15)part 18
-                <br>
-                Phone: +213 781292716
-                <br>
-                Email: djeberboudjerda@gmail.com
-            </address>
-        </section>
-        <p>&copy; 2026 Gym Management System. All rights reserved.</p>
-    </footer>
+    <?php
+    include __DIR__ . "/includes/footer.php"
+    ?>
 
     <script src="../js/contact.js"></script>
     <script>
-        document.querySelector('.menu-toggle').addEventListener('click', function () {
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('header nav').classList.toggle('open');
         });
     </script>

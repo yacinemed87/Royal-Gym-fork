@@ -251,59 +251,6 @@ tr {
 	color: #f8c146;
 }
 
-footer {
-	text-align: center;
-	padding-top: 3rem;
-	padding-bottom: 1rem;
-	margin-top: 3rem;
-	border-top: 1px solid var(--glass);
-	background: var(--secondary);
-}
-
-.contact-details {
-	text-align: center;
-	padding: 0;
-	margin-bottom: 2rem;
-	box-shadow: none;
-}
-
-.contact-details h2 {
-	color: var(--accent);
-	font-family: "Playfair Display", serif;
-	font-size: 2rem;
-	font-style: italic;
-	margin-bottom: 1rem;
-}
-
-.contact-details address {
-	font-family: "Roboto", sans-serif;
-	font-size: 1rem;
-	font-style: normal;
-	line-height: 1.8;
-	color: var(--muted);
-}
-
-.contact-details address a {
-	color: var(--accent);
-	display: inline-block;
-	margin: 1rem 0.5rem 0;
-	padding: 0.5rem 1.5rem;
-	border: 1px solid var(--glass);
-	border-radius: 2rem;
-	transition: all 0.2s ease;
-}
-
-.contact-details address a:hover {
-	background: var(--accent);
-	color: var(--primary);
-}
-
-footer>p {
-	color: var(--white);
-	font-size: 0.9rem;
-	margin-top: 2rem;
-}
-
 /* Tablet */
 @media screen and (max-width: 768px) {
 	.hero>h1 {
@@ -335,10 +282,6 @@ footer>p {
 
 	table {
 		width: 90%;
-	}
-
-	.contact-details address {
-		font-size: 0.9rem;
 	}
 }
 
@@ -400,13 +343,5 @@ footer>p {
 
 	.opening-hours {
 		font-size: 1.4rem;
-	}
-
-	footer {
-		padding-top: 2rem;
-	}
-
-	.contact-details h2 {
-		font-size: 1.5rem;
 	}
 }

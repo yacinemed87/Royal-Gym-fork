@@ -1,3 +1,8 @@
+<?php
+$current_page = 'trainers';
+?>
+
+
 <!doctype html>
 <html lang="en">
 
@@ -10,28 +15,13 @@
 		href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&family=Roboto:wght@700&display=swap"
 		rel="stylesheet" />
 	<link rel="stylesheet" href="../css/trainers.css" />
-    <link rel="icon" type="image/png" href="../assets/images/logo.png">
+	<link rel="icon" type="image/png" href="../assets/images/logo.png">
 </head>
 
 <body>
-	<header>
-		<a href="../index.html">
-			<span class="name">Royal Gym</span>
-			<img src="../assets/images/logo.png" alt="Royal Gym Logo" class="logo" />
-		</a>
-		<button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
-		<nav>
-			<ul>
-				<li><a href="../index.html">Home</a></li>
-				<li><a href="./classes.html">Classes</a></li>
-				<li><a href="./membership.html">Membership</a></li>
-				<li>
-					<a href="./trainers.html" class="active">Trainers</a>
-				</li>
-				<li><a href="./contact.html">Contact</a></li>
-			</ul>
-		</nav>
-	</header>
+	<?php
+	include  __DIR__ . "/includes/header.php"
+	?>
 
 	<main>
 		<section>
@@ -108,7 +98,7 @@
 				Are you a certified fitness trainer looking to join our
 				team? We are always searching for passionate professionals.
 			</p>
-			<a href="contact.html">Contact Us to Apply</a>
+			<a href="/client/contact.php">Contact Us to Apply</a>
 		</section>
 
 		<section>
@@ -123,13 +113,13 @@
 		</section>
 	</main>
 
-	<footer>
-		<p>&copy; 2026 Gym Management System. All rights reserved.</p>
-	</footer>
+	<?php
+	include __DIR__ . "/includes/footer.php"
+	?>
 
 	<script src="../js/trainers.js"></script>
 	<script>
-		document.querySelector('.menu-toggle').addEventListener('click', function () {
+		document.querySelector('.menu-toggle').addEventListener('click', function() {
 			document.querySelector('header nav').classList.toggle('open');
 		});
 	</script>

@@ -1,0 +1,270 @@
+@import "style.css";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--bg);
+    color: var(--white);
+    line-height: 1.6;
+    font-family: 'Roboto', sans-serif;
+}
+
+main {
+    width: 90%;
+    max-width: 1100px;
+    margin: 40px auto;
+}
+
+.profile-intro {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.profile-intro h2 {
+    color: var(--tertiary);
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.profile-intro p {
+    color: var(--muted);
+    font-weight: 300;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 30px;
+    align-items: start;
+}
+
+/* ── Shared card shell ── */
+.profile-card,
+.sub-card {
+    background: rgba(7, 32, 58, 0.5);
+    border: 1px solid var(--glass);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 30px;
+}
+
+/* ── Left: who they are ── */
+.profile-card {
+    text-align: center;
+}
+
+.avatar {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    border: 0.2rem solid var(--accent);
+    background: var(--secondary);
+    color: var(--accent);
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-card h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--white);
+}
+
+.member-id {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+}
+
+/* ── Label / value pairs ── */
+.details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 16px;
+    text-align: left;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--glass);
+}
+
+.details dt {
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 300;
+}
+
+.details dd {
+    color: var(--white);
+    font-size: 0.9rem;
+    word-break: break-word;
+}
+
+/* ── Right: the subscription ── */
+.sub-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 5px;
+}
+
+.sub-head h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--accent);
+}
+
+.sub-status {
+    font-size: 0.75rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.3rem 0.9rem;
+    border-radius: 2rem;
+    border: 1px solid var(--glass);
+    color: var(--muted);
+}
+
+.is-active .sub-status {
+    background: rgba(76, 175, 80, 0.15);
+    border-color: rgba(76, 175, 80, 0.4);
+    color: #7fd18a;
+}
+
+.is-expiring .sub-status {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: rgba(212, 175, 55, 0.5);
+    color: var(--accent);
+}
+
+.is-expired .sub-status {
+    background: rgba(255, 77, 77, 0.15);
+    border-color: rgba(255, 77, 77, 0.4);
+    color: #ff8a8a;
+}
+
+.sub-price {
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+}
+
+.price-unit {
+    font-size: 0.85rem;
+    font-weight: 300;
+}
+
+.countdown {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.days-left {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+}
+
+.is-expired .days-left {
+    color: #ff8a8a;
+}
+
+.days-label {
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+/* ── Progress ── */
+.progress-track {
+    height: 10px;
+    border-radius: 2rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass);
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0;
+    border-radius: 2rem;
+    background: linear-gradient(90deg, var(--accent), #f0d27a);
+    transition: width 0.6s ease;
+}
+
+.is-expired .progress-bar {
+    background: linear-gradient(90deg, #ff4d4d, #ff8a8a);
+}
+
+.progress-note {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+/* ── Call to action ── */
+.renew-btn {
+    display: block;
+    margin-top: 25px;
+    padding: 1rem;
+    text-align: center;
+    background-color: var(--primary);
+    color: var(--accent);
+    border: 0.2rem solid var(--accent);
+    border-radius: 2rem;
+    font-weight: bold;
+    transition: background-color 0.2s linear, color 0.2s linear;
+}
+
+.renew-btn:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
+/* ── Tablet ── */
+@media screen and (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-intro h2 {
+        font-size: 1.8rem;
+    }
+}
+
+/* ── Mobile ── */
+@media screen and (max-width: 480px) {
+    main {
+        width: 95%;
+        margin: 25px auto;
+    }
+
+    .profile-card,
+    .sub-card {
+        padding: 20px;
+    }
+
+    .days-left {
+        font-size: 2.8rem;
+    }
+
+    .sub-head h3 {
+        font-size: 1.5rem;
+    }
+}

@@ -1,0 +1,74 @@
+/* Shared foundation: web fonts + design tokens.
+   Imported by style.css (client pages) and login.css. */
+
+/* Playfair Display */
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('../assets/fonts/playfair/playfair-600.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('../assets/fonts/playfair/playfair-700.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Playfair Display';
+    src: url('../assets/fonts/playfair/playfair-700-italic.woff2') format('woff2');
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Roboto */
+@font-face {
+    font-family: 'Roboto';
+    src: url('../assets/fonts/roboto/roboto-300.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../assets/fonts/roboto/roboto-400.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('../assets/fonts/roboto/roboto-700.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    --primary: #071732;
+    --secondary: #031026;
+    --bg: var(--primary);
+    --accent: #d4af37;
+    --bg-darker: #bfbbc9;
+    --text-dark: #100618;
+    --text_light: #fff;
+
+    --admin-primary: #8b0000;
+    --admin-accent: #d4af37;
+    --admin-bg: #f5f0f0;
+
+    --white: #ffffff;
+    --tertiary: #d4af37;
+    --muted: #cfcfcf;
+    --glass: rgba(212, 175, 55, 0.08);
+    --radius: 14px;
+    --shadow: 0 12px 34px rgba(0, 0, 0, 0.6);
+    --focus: 0 0 0 4px rgba(212, 175, 55, 0.12);
+}

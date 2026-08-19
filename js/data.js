@@ -1,11 +1,11 @@
 const members = [
-    { id: 1, name: "Ahmed Benali", gender: "Male", email: "ahmed.benali@gmail.com", phone: "0551234567", plan: "Royale", joinDate: "2024-01-15" },
+    { id: 1, name: "Ahmed Benali", gender: "Male", email: "ahmed.benali@gmail.com", phone: "0551234567", plan: "Royal", joinDate: "2024-01-15" },
     { id: 2, name: "Yasmine Khelifi", gender: "Female", email: "yasmine.khelifi@gmail.com", phone: "0661987432", plan: "Elite", joinDate: "2024-03-22" },
     { id: 3, name: "Karim Boukhelifa", gender: "Male", email: "karim.boukhelifa@outlook.com", phone: "0773456789", plan: "Starter", joinDate: "2024-05-10" },
-    { id: 4, name: "Nour El Houda Messaoud", gender: "Female", email: "nour.messaoud@gmail.com", phone: "0554321876", plan: "Royale", joinDate: "2023-11-30" },
+    { id: 4, name: "Nour El Houda Messaoud", gender: "Female", email: "nour.messaoud@gmail.com", phone: "0554321876", plan: "Royal", joinDate: "2023-11-30" },
     { id: 5, name: "Riad Tlemcani", gender: "Male", email: "riad.tlemcani@yahoo.fr", phone: "0698765432", plan: "Elite", joinDate: "2024-02-08" },
     { id: 6, name: "Amira Zouaoui", gender: "Female", email: "amira.zouaoui@gmail.com", phone: "0771122334", plan: "Starter", joinDate: "2024-06-01" },
-    { id: 7, name: "Sofiane Hadj Amar", gender: "Male", email: "sofiane.hadjamar@gmail.com", phone: "0559988776", plan: "Royale", joinDate: "2023-09-14" },
+    { id: 7, name: "Sofiane Hadj Amar", gender: "Male", email: "sofiane.hadjamar@gmail.com", phone: "0559988776", plan: "Royal", joinDate: "2023-09-14" },
     { id: 8, name: "Lina Belarbi", gender: "Female", email: "lina.belarbi@gmail.com", phone: "0662233445", plan: "Elite", joinDate: "2024-04-19" },
 ];
 
@@ -26,7 +26,7 @@ const membershipPlans = [
     },
     {
         id: 3,
-        name: "Royale",
+        name: "Royal",
         price: 24900,
         duration: "1 month",
         features: ["All Elite benefits", "Unlimited access", "Personal Training Zone", "Monthly 1-on-1 coaching", "Massage services", "Dedicated concierge"]

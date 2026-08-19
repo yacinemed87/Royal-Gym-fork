@@ -156,14 +156,6 @@ tr:hover {
     transform: translateY(-2px);
 }
 
-footer {
-    background-color: var(--primary);
-    color: var(--accent);
-    text-align: center;
-    padding: 2rem;
-    margin-top: 4rem;
-}
-
 
 /* ── Tablet ── */
 @media screen and (max-width: 768px) {

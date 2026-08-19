@@ -1,3 +1,7 @@
+<?php
+$current_page = 'classes';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,27 +10,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gym Classes | Royal Gym</title>
   <link rel="stylesheet" href="../css/classes.css">
-    <link rel="icon" type="image/png" href="../assets/images/logo.png">
+  <link rel="icon" type="image/png" href="../assets/images/logo.png">
 </head>
 
 <body>
-  <header>
-    <a href="../index.html">
-      Royal Gym
-      <img src="../assets/images/logo.png" alt="Royal Gym Logo" class="logo">
-    </a>
-    <button class="menu-toggle" aria-label="Toggle menu">&#9776;</button>
-    <nav>
-      <ul>
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="./classes.html" class="active">Classes</a></li>
-        <li><a href="./membership.html">Membership</a></li>
-        <li><a href="./trainers.html">Trainers</a></li>
-        <li><a href="./contact.html">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-
+  <?php
+  include __DIR__ . "/includes/header.php"
+  ?>
   <main>
     <section class="hero">
       <h1>Our Fitness Classes</h1>
@@ -58,14 +48,15 @@
     </section>
   </main>
 
-  <footer>
-    <p>&copy; 2026 Royale Gym. All rights reserved.</p>
-  </footer>
+  <?php
+  include __DIR__ . "/includes/footer.php"
+  ?>
   <script type="module" src="../js/classes.js"></script>
   <script>
-    document.querySelector('.menu-toggle').addEventListener('click', function () {
+    document.querySelector('.menu-toggle').addEventListener('click', function() {
       document.querySelector('header nav').classList.toggle('open');
     });
   </script>
 </body>
+
 </html>
