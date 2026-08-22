@@ -1,5 +1,5 @@
 <?php
-define('BASE_URL', '/Royal-Gym');
+define('BASE_URL', '/Royal-Gym-fork');
 
 // Shared MySQL credentials. The database name is chosen per gym — see gyms.php.
 define('DB_HOST', 'localhost');

@@ -1,6 +1,8 @@
 <?php
-require_once __DIR__ . "/config.php";
+//require_once __DIR__ . "/config.php";
 
+//define('BASE_URL', '/Royal-Gym-fork');
+require_once __DIR__ . '/db_connect.php';
 /*
  * All the gyms are stored in the "gym_registry" database, in a table called
  * "gyms". Each row has the gym's name, logo, home page and contact details,
@@ -12,27 +14,26 @@ require_once __DIR__ . "/config.php";
  */
 
 // Let us check for errors with if() instead of try/catch.
-mysqli_report(MYSQLI_REPORT_OFF);
+//mysqli_report(MYSQLI_REPORT_OFF);
 
 
 // Connect to the registry database (the list of gyms).
 function connect_registry()
 {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, "gym_registry");
+    //$conn2 = new mysqli($servername, $username, $password, $dbname2);
 
-    if ($conn->connect_error) {
-        return null;
-    }
+    if ($conn2->connect_error) {
+       return null;
+     }
 
-    $conn->set_charset("utf8mb4");
-    return $conn;
+    // $conn2->set_charset("utf8mb4");
+    return $conn2;
 }
-
 
 // Connect to one gym's own database, for example "royal-gym".
 function connect_gym($db_name)
 {
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, $db_name);
+    //$conn2 = new mysqli(DB_HOST, DB_USER, DB_PASS, $db_name);
 
     if ($conn->connect_error) {
         return null;
@@ -41,7 +42,6 @@ function connect_gym($db_name)
     $conn->set_charset("utf8mb4");
     return $conn;
 }
-
 
 // Find one gym by its database name, for example "power-fitness".
 // Returns an array with all the columns, or null if there is no such gym.
@@ -65,7 +65,6 @@ function get_gym($db_name)
     return $gym;
 }
 
-
 // Find one gym by the name someone typed on the login form.
 // It accepts either the name ("Royal Gym") or the database name ("royal-gym").
 // Capital letters do not matter, because MySQL ignores them when comparing.
@@ -77,7 +76,7 @@ function find_gym($typed_name)
         return null;
     }
 
-    $stmt = $registry->prepare("SELECT * FROM gyms WHERE name = ? OR db_name = ?");
+    $stmt = $registry->prepare("SELECT * FROM gyms WHERE name = 'royal-gym' OR db_name = 'royal-gym'");
     $stmt->bind_param("ss", $typed_name, $typed_name);
     $stmt->execute();
 

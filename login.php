@@ -1,7 +1,8 @@
 <?php
 session_start();
-require_once __DIR__ . "/backend/gyms.php";
-
+define('BASE_URL', '/Royal-Gym-fork');
+require_once __DIR__ . "/backend/db_connect.php";
+include "backend/gyms.php";
 $error = "";
 $gym_input = "";
 $email_input = "";
@@ -13,7 +14,6 @@ if (isset($_POST["gym"])) {
 	$email_input = trim($_POST["email"]);
 	$password = $_POST["password"];
 
-	// 1. Find the gym in the registry.
 	$gym = find_gym($gym_input);
 
 	if ($gym == null) {
@@ -34,9 +34,7 @@ if (isset($_POST["gym"])) {
 			$user = $stmt->get_result()->fetch_assoc();
 			$stmt->close();
 			$conn->close();
-
-			// 4. Check the password. It is stored scrambled, so we cannot
-			//    compare it with ==. password_verify does the check for us.
+			
 			if ($user != null && password_verify($password, $user["password"])) {
 
 				// 5. Remember who logged in.
@@ -49,9 +47,7 @@ if (isset($_POST["gym"])) {
 				if ($user["role"] == "admin" || $user["role"] == "super_admin") {
 					$destination = "/admin/dashboard.php";
 				} else {
-					// A gym can have its own profile page called
-					// profile-<database name>.php. If it does not exist,
-					// use the normal profile page.
+					
 					$gym_profile = "/client/profile-" . $gym["db_name"] . ".php";
 
 					if (file_exists(__DIR__ . $gym_profile)) {
@@ -65,14 +61,13 @@ if (isset($_POST["gym"])) {
 				exit;
 			}
 
-			// We do not say which one was wrong, so nobody can use this
-			// page to find out which emails exist.
+			
 			$error = "Incorrect email or password.";
 		}
 	}
 }
 ?>
-?>
+
 <!doctype html>
 <html lang="en">
 
