@@ -1,12 +1,15 @@
 <?php
-// Default XAMPP credentials
+session_start();
+
 $servername = "localhost";
 $username = "ugym";
 $password = "yacine123";
-$dbname = "royal-gym";
-$dbname2 = "gym-registry";
+$registry_db = "gym-registry";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+$connReg = new mysqli($servername, $username, $password, $registry_db);
+$connReg->set_charset("utf8mb4");
 
-$conn2 = new mysqli($servername, $username, $password, $dbname2);
+if (!empty($_SESSION['gym_db'])) {
+    $connGym = new mysqli($servername, $username, $password, $_SESSION['gym_db']);
+    $connGym->set_charset("utf8mb4");
+}

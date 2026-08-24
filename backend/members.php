@@ -17,7 +17,7 @@ switch ($method) {
 
     // Return all members, with their plan name from the plans table
     case 'GET':
-        $result = $conn->query(
+        $result = $connGym->query(
             "SELECT m.id, m.name, m.gender, m.email, m.phone, m.joinDate,
                     p.id AS plan_id, p.name AS plan
              FROM members m
@@ -45,7 +45,7 @@ switch ($method) {
         $joinDate = date('Y-m-d');
 
         // Look up the plan ID from the plan name
-        $planStmt = $conn->prepare("SELECT id FROM plans WHERE name = ?");
+        $planStmt = $connGym->prepare("SELECT id FROM plans WHERE name = ?");
         $planStmt->bind_param("s", $planName);
         $planStmt->execute();
         $planResult = $planStmt->get_result();
@@ -59,7 +59,7 @@ switch ($method) {
         $planId = $planRow['id'];
 
         // Check for duplicate email
-        $check = $conn->prepare("SELECT id FROM members WHERE email = ?");
+        $check = $connGym->prepare("SELECT id FROM members WHERE email = ?");
         $check->bind_param("s", $email);
         $check->execute();
         $check->store_result();
@@ -70,7 +70,7 @@ switch ($method) {
             break;
         }
 
-        $stmt = $conn->prepare(
+        $stmt = $connGym->prepare(
             "INSERT INTO members (name, gender, email, phone, plan_id, joinDate)
              VALUES (?, ?, ?, ?, ?, ?)"
         );
@@ -78,7 +78,7 @@ switch ($method) {
 
         if ($stmt->execute()) {
             http_response_code(201);
-            echo json_encode(["message" => "Member added", "id" => $conn->insert_id]);
+            echo json_encode(["message" => "Member added", "id" => $connGym->insert_id]);
         } else {
             http_response_code(500);
             echo json_encode(["error" => "Failed to add member"]);
@@ -97,7 +97,7 @@ switch ($method) {
         $planName = trim($data['plan']);
 
         // Look up plan ID
-        $planStmt = $conn->prepare("SELECT id FROM plans WHERE name = ?");
+        $planStmt = $connGym->prepare("SELECT id FROM plans WHERE name = ?");
         $planStmt->bind_param("s", $planName);
         $planStmt->execute();
         $planRow = $planStmt->get_result()->fetch_assoc();
@@ -110,7 +110,7 @@ switch ($method) {
         $planId = $planRow['id'];
 
         // Check email not used by another member
-        $check = $conn->prepare("SELECT id FROM members WHERE email = ? AND id != ?");
+        $check = $connGym->prepare("SELECT id FROM members WHERE email = ? AND id != ?");
         $check->bind_param("si", $email, $id);
         $check->execute();
         $check->store_result();
@@ -121,7 +121,7 @@ switch ($method) {
             break;
         }
 
-        $stmt = $conn->prepare(
+        $stmt = $connGym->prepare(
             "UPDATE members SET name=?, gender=?, email=?, phone=?, plan_id=? WHERE id=?"
         );
         $stmt->bind_param("ssssis", $name, $gender, $email, $phone, $planId, $id);
@@ -139,7 +139,7 @@ switch ($method) {
         $data = json_decode(file_get_contents("php://input"), true);
         $id = intval($data['id']);
 
-        $stmt = $conn->prepare("DELETE FROM members WHERE id = ?");
+        $stmt = $connGym->prepare("DELETE FROM members WHERE id = ?");
         $stmt->bind_param("i", $id);
 
         if ($stmt->execute()) {
@@ -156,5 +156,4 @@ switch ($method) {
         break;
 }
 
-$conn->close();
-?>
+$connGym->close();

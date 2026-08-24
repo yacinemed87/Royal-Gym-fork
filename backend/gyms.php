@@ -1,39 +1,11 @@
 <?php
-//require_once __DIR__ . "/config.php";
-
-//define('BASE_URL', '/Royal-Gym-fork');
+require_once __DIR__ . "/config.php";
 require_once __DIR__ . '/db_connect.php';
-/*
- * All the gyms are stored in the "gym_registry" database, in a table called
- * "gyms". Each row has the gym's name, logo, home page and contact details,
- * plus db_name: the database that holds that gym's members, plans, classes
- * and trainers.
- *
- * To add a new gym you add a row to that table and create its database.
- * You do not need to change any PHP.
- */
 
-// Let us check for errors with if() instead of try/catch.
-//mysqli_report(MYSQLI_REPORT_OFF);
-
-
-// Connect to the registry database (the list of gyms).
-function connect_registry()
-{
-    //$conn2 = new mysqli($servername, $username, $password, $dbname2);
-
-    if ($conn2->connect_error) {
-       return null;
-     }
-
-    // $conn2->set_charset("utf8mb4");
-    return $conn2;
-}
-
-// Connect to one gym's own database, for example "royal-gym".
 function connect_gym($db_name)
 {
-    //$conn2 = new mysqli(DB_HOST, DB_USER, DB_PASS, $db_name);
+    global $servername, $username, $password;
+    $conn = new mysqli($servername, $username, $password, $db_name);
 
     if ($conn->connect_error) {
         return null;
@@ -43,85 +15,35 @@ function connect_gym($db_name)
     return $conn;
 }
 
-// Find one gym by its database name, for example "power-fitness".
-// Returns an array with all the columns, or null if there is no such gym.
-function get_gym($db_name)
+// gives you the gym's row from registry
+function get_gym($typed_name)
 {
-    $registry = connect_registry();
+    global $connReg;
 
-    if ($registry == null) {
+    if ($connReg == null) {
         return null;
     }
 
-    $stmt = $registry->prepare("SELECT * FROM gyms WHERE db_name = ?");
-    $stmt->bind_param("s", $db_name);
-    $stmt->execute();
-
-    $gym = $stmt->get_result()->fetch_assoc();
-
-    $stmt->close();
-    $registry->close();
-
-    return $gym;
-}
-
-// Find one gym by the name someone typed on the login form.
-// It accepts either the name ("Royal Gym") or the database name ("royal-gym").
-// Capital letters do not matter, because MySQL ignores them when comparing.
-function find_gym($typed_name)
-{
-    $registry = connect_registry();
-
-    if ($registry == null) {
-        return null;
-    }
-
-    $stmt = $registry->prepare("SELECT * FROM gyms WHERE name = 'royal-gym' OR db_name = 'royal-gym'");
+    $stmt = $connReg->prepare("SELECT * FROM gyms WHERE name = ? OR db_name = ?");
     $stmt->bind_param("ss", $typed_name, $typed_name);
     $stmt->execute();
 
     $gym = $stmt->get_result()->fetch_assoc();
 
     $stmt->close();
-    $registry->close();
 
     return $gym;
 }
 
-
-// The first gym in the table. Pages shared by every gym (classes, trainers,
-// contact...) use this, because they do not belong to one gym in particular.
-function get_first_gym()
+function get_gym_info()
 {
-    $registry = connect_registry();
+    global $connGym;
+    $stmt = $connGym->prepare("SELECT * FROM gyminfo");
+    $stmt->execute();
 
-    if ($registry == null) {
-        return null;
-    }
+    $info = $stmt->get_result()->fetch_assoc();
 
-    $result = $registry->query("SELECT * FROM gyms ORDER BY id LIMIT 1");
-    $gym = $result->fetch_assoc();
+    $stmt->close();
 
-    $registry->close();
-
-    return $gym;
-}
-
-
-// The gym that the page being shown belongs to.
-// A page says which gym it is by writing, before including the header:
-//     $active_gym = "power-fitness";
-function current_gym()
-{
-    global $active_gym;
-
-    if (isset($active_gym)) {
-        $gym = get_gym($active_gym);
-
-        if ($gym != null) {
-            return $gym;
-        }
-    }
-
-    return get_first_gym();
+    return $info;
 }

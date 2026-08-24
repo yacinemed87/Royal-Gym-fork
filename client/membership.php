@@ -1,5 +1,6 @@
 <?php
 $current_page = 'membership';
+require_once __DIR__ . "/backend/require_login.php";
 ?>
 
 

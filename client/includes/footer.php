@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . "/../../backend/gyms.php";
-$gym = current_gym();
+$gym = get_gym_info();
 ?>
 
 <footer>
@@ -19,8 +19,4 @@ $gym = current_gym();
     <?php endif; ?>
 
     <p>&copy; 2026 <?php echo htmlspecialchars($gym["name"]); ?>. All rights reserved.</p>
-
-    <?php if (isset($current_page) && $current_page === "home") : ?>
-        <a href="<?php echo BASE_URL; ?>/login.php">Admin Login</a>
-    <?php endif; ?>
 </footer>
