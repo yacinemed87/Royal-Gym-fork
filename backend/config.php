@@ -1,2 +1,2 @@
 <?php
-define('BASE_URL', '/Royal-Gym');
+define('BASE_URL', '/Royal-Gym-fork');

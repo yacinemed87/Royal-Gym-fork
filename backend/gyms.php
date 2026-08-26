@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/config.php";
-require_once __DIR__ . '/db_connect.php';
 
 function connect_gym($db_name)
 {
@@ -38,12 +37,15 @@ function get_gym($typed_name)
 function get_gym_info()
 {
     global $connGym;
-    $stmt = $connGym->prepare("SELECT * FROM gyminfo");
-    $stmt->execute();
+    if(isset($connGym)){
+        $stmt = $connGym->prepare("SELECT * FROM gyminfo");
+        $stmt->execute();
 
-    $info = $stmt->get_result()->fetch_assoc();
+        $info = $stmt->get_result()->fetch_assoc();
 
-    $stmt->close();
+        $stmt->close();
 
-    return $info;
+        return $info;
+    }
+    return null;
 }

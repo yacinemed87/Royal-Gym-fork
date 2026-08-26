@@ -3,11 +3,9 @@
 require_once __DIR__ . "/backend/config.php";
 require_once  __DIR__ .  '/backend/db_connect.php';
 require_once __DIR__ . "/backend/gyms.php";
-require_once __DIR__ . "/backend/require_login.php";
+// require_once __DIR__ . "/backend/require_login.php";
 
 $current_page = "home";
-
-
 $gym_db = $_SESSION['gym_db'];
 $gym = get_gym_info();
 ?>

@@ -75,12 +75,6 @@ $gym = get_gym_info();
             <?php if (empty($_SESSION['gym_db'])) { ?>
                 <li><a href="<?php echo BASE_URL; ?>/login.php">Login</a></li>
             <?php } ?>
-            <?php if ($_SESSION['gym_db'] == "power-fitness") { ?>
-                <li><a href="<?php echo BASE_URL; ?>/index.php">Royal Gym</a></li>
-            <?php } ?>
-            <?php if ($_SESSION['gym_db'] == "royal-gym") { ?>
-                <li><a href="<?php echo BASE_URL; ?>/index.php">Power Fitness</a></li>
-            <?php } ?>
         </ul>
     </nav>
 </header>
