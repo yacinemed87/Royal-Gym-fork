@@ -74,6 +74,15 @@ if (isset($_POST["gym"])) {
     }
 }
 
+$gyms = [];
+if (isset($connReg) && $connReg !== null) {
+    $res = $connReg->query("SELECT name, slug, db_name FROM gyms ORDER BY name ASC");
+    if ($res) {
+        while ($row = $res->fetch_assoc()) {
+            $gyms[] = $row;
+        }
+    }
+}
 ?>
 
 <!doctype html>
@@ -101,13 +110,14 @@ if (isset($_POST["gym"])) {
 
                     <div class="form-group">
                         <label for="gym">Gym:</label>
-                        <input
-                            type="text"
-                            id="gym"
-                            name="gym"
-                            value="<?= htmlspecialchars($gym_input); ?>"
-                            placeholder="Enter your gym name"
-                            required />
+                        <select id="gym" name="gym" required>
+                            <option value="">-- Select your gym --</option>
+                            <?php foreach ($gyms as $g): ?>
+                                <option value="<?= htmlspecialchars($g['name']); ?>" <?= ($gym_input === $g['name'] || $gym_input === $g['slug']) ? 'selected' : ''; ?>>
+                                    <?= htmlspecialchars($g['name']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
 
                     <div class="form-group">

@@ -108,7 +108,8 @@ label {
 	color: var(--primary);
 }
 
-input {
+input,
+select {
 	width: 100%;
 	padding: 0.85rem 1rem;
 	border: 1.5px solid var(--bg-darker);
@@ -118,9 +119,11 @@ input {
 	color: var(--text-dark);
 	background-color: #f8fafc;
 	transition: all 0.2s ease;
+	cursor: pointer;
 }
 
-input:focus {
+input:focus,
+select:focus {
 	outline: none;
 	background-color: var(--white);
 	border-color: var(--accent);

@@ -66,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				<button class="btn btn-gold" onclick="openAddModal()">
 					Add Member
 				</button>
-				<span class="count">Showing
-					<strong id="member-count">0</strong> members</span>
+				<span class="count">Total: 
+					<strong id="member-count"><?= $connGym ? ($connGym->query("SELECT COUNT(*) as cnt FROM members")->fetch_assoc()['cnt'] ?? 0) : 0; ?></strong> members</span>
 			</div>
 
 			<table>
@@ -145,23 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					</button>
 				</div>
 			</form>
-		</div>
-	</div>
-	<!-- ========== DELETE CONFIRMATION MODAL ========== -->
-	<div id="deleteModal" class="modal-overlay hidden">
-		<div class="modal">
-			<h2>Delete Member?</h2>
-			<p style="color: var(--text-muted); margin: 0.5rem 0 1.5rem">
-				This action cannot be undone.
-			</p>
-			<div class="modal-footer">
-				<button class="btn btn-secondary" onclick="closeDeleteModal()">
-					Cancel
-				</button>
-				<button class="btn btn-danger" onclick="confirmDelete()">
-					Delete
-				</button>
-			</div>
 		</div>
 	</div>
 

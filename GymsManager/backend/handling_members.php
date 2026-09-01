@@ -107,7 +107,8 @@ function add_subscription($form)
 function update_member($data)
 {
     global $connGym;
-    if (!$connGym) return false;
+    if (!$connGym)
+        return false;
 
     $id = intval($data['id'] ?? 0);
     $name = trim($data['name'] ?? '');
@@ -158,4 +159,49 @@ function update_member($data)
     }
 
     return true;
+}
+
+function get_member_profile($user_id)
+{
+    global $connGym;
+    if (!$connGym || empty($user_id))
+        return null;
+
+    $stmt = $connGym->prepare("SELECT id, name, email, phone, gender, joinDate, role FROM members WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $member = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$member) {
+        $stmt = $connGym->prepare("SELECT id, name, email, phone, gender, joinDate, role FROM staff WHERE id = ?");
+        $stmt->bind_param("i", $user_id);
+        $stmt->execute();
+        $member = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+    }
+
+    return $member;
+}
+
+function get_member_subscription($member_id)
+{
+    global $connGym;
+    if (!$connGym || empty($member_id))
+        return null;
+
+    $stmt = $connGym->prepare("
+        SELECT s.*, p.name AS plan_name, p.price AS plan_price, p.duration AS plan_duration
+        FROM subscription s
+        LEFT JOIN plans p ON s.plan_id = p.id
+        WHERE s.member_id = ?
+        ORDER BY s.id DESC
+        LIMIT 1
+    ");
+    $stmt->bind_param("i", $member_id);
+    $stmt->execute();
+    $sub = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return $sub;
 }

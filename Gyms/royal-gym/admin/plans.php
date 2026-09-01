@@ -33,10 +33,7 @@ $gym = get_gym_info();
 
 			<!-- Toolbar: search + add button -->
 			<div class="toolbar">
-				<input
-					type="text"
-					id="plan-search"
-					placeholder="Search by name or feature..." />
+				<input type="text" id="plan-search" placeholder="Search by name or feature..." />
 				<button class="btn btn-gold" onclick="openAddModal()">
 					Add Plan
 				</button>
@@ -79,19 +76,11 @@ $gym = get_gym_info();
 
 			<div class="form-group">
 				<label class="label">Plan Name</label>
-				<input
-					type="text"
-					id="inputName"
-					class="input"
-					placeholder="e.g. Platinum" />
+				<input type="text" id="inputName" class="input" placeholder="e.g. Platinum" />
 			</div>
 			<div class="form-group">
 				<label class="label">Price (DA)</label>
-				<input
-					type="number"
-					id="inputPrice"
-					class="input"
-					placeholder="e.g. 20000" />
+				<input type="number" id="inputPrice" class="input" placeholder="e.g. 20000" />
 			</div>
 			<div class="form-group">
 				<label class="label">Duration</label>
@@ -105,9 +94,7 @@ $gym = get_gym_info();
 			</div>
 			<div class="form-group">
 				<label class="label">Features</label>
-				<textarea
-					id="inputFeatures"
-					class="input"
+				<textarea id="inputFeatures" class="input"
 					placeholder="List features separated by commas, e.g. Gym access, Sauna, Meal plan"
 					style="min-height: 80px; resize: vertical"></textarea>
 			</div>
@@ -136,9 +123,7 @@ $gym = get_gym_info();
 				to be reassigned.
 			</p>
 			<div class="modal-footer">
-				<button
-					class="btn btn-secondary"
-					onclick="closeDeleteModal()">
+				<button class="btn btn-secondary" onclick="closeDeleteModal()">
 					Cancel
 				</button>
 				<button class="btn btn-danger" onclick="confirmDelete()">

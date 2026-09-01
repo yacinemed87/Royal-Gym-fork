@@ -5,7 +5,6 @@ require_once PROJECT_ROOT . "/GymsManager/backend/config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/indexBack.php";
-// require_once PROJECT_ROOT . "/GymsManager/backend/require_login.php";
 
 $login = isset($_SESSION['user_id']);
 $current_page = "home";
