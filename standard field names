@@ -1,0 +1,9 @@
+member:
+id
+name
+gender: Male Female
+email
+phone
+joinDate
+role
+password

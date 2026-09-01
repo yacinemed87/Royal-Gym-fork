@@ -1,0 +1,331 @@
+@import "style.css";
+
+/* Power Fitness - Home Page Styling */
+
+/* ── Hero Section ────────────────────────────────────────── */
+.hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    min-height: 75vh;
+    padding: 6rem 2rem;
+    background: 
+        radial-gradient(circle at center 40%, rgba(255, 51, 75, 0.18) 0%, rgba(9, 13, 22, 0.95) 75%),
+        linear-gradient(180deg, rgba(9, 13, 22, 0.6) 0%, #090d16 100%),
+        url("../assets/images/hero-section-background.jpg") center/cover no-repeat;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+    pointer-events: none;
+}
+
+.hero > h1 {
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    font-weight: 900;
+    text-transform: uppercase;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+    background: linear-gradient(135deg, #ffffff 30%, var(--accent-light) 75%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 10px 30px rgba(255, 51, 75, 0.35));
+    margin-bottom: 1.2rem;
+}
+
+.hero .tagline {
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+    color: var(--text-muted);
+    max-width: 680px;
+    font-weight: 400;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+/* CTA Button */
+.hero a {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 1.1rem 3rem;
+    color: var(--white);
+    background: var(--accent-gradient);
+    border-radius: 100px;
+    border: none;
+    box-shadow: 0 10px 35px var(--accent-glow);
+    transition: var(--transition);
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hero a:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 16px 45px rgba(255, 51, 75, 0.5);
+}
+
+/* ── Section General ─────────────────────────────────────── */
+section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 5rem 2rem;
+}
+
+section > h2 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin-bottom: 3.5rem;
+    position: relative;
+}
+
+section > h2::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--accent-gradient);
+    box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* ── Facilities Grid ─────────────────────────────────────── */
+.facilities-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+.facility-card {
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    padding: 2.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.facility-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--accent-gradient);
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.facility-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 51, 75, 0.4);
+    box-shadow: var(--shadow), 0 0 30px rgba(255, 51, 75, 0.15);
+    background: var(--card-hover);
+}
+
+.facility-card:hover::before {
+    opacity: 1;
+}
+
+.facility-card h3 {
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 0.8rem;
+}
+
+.facility-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.facility-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: calc(var(--radius) - 4px);
+    border: 1px solid var(--glass-border);
+    transition: var(--transition);
+}
+
+.facility-card:hover img {
+    transform: scale(1.02);
+}
+
+/* ── Membership Plans Preview (Home) ─────────────────────── */
+.membership-cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2.5rem;
+    align-items: stretch;
+}
+
+.membership-card {
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius-lg);
+    padding: 2.8rem 2.2rem;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    position: relative;
+    transition: var(--transition);
+}
+
+.membership-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: var(--shadow);
+}
+
+.membership-card.elite {
+    border: 2px solid var(--accent);
+    background: linear-gradient(165deg, rgba(255, 51, 75, 0.12) 0%, var(--card-bg) 100%);
+    box-shadow: 0 10px 40px rgba(255, 51, 75, 0.2);
+    transform: scale(1.03);
+}
+
+.membership-card.elite:hover {
+    transform: scale(1.03) translateY(-8px);
+    box-shadow: 0 20px 50px rgba(255, 51, 75, 0.35);
+}
+
+.membership-card h3 {
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+}
+
+.membership-card p.price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    color: var(--accent);
+    margin-bottom: 1.8rem;
+}
+
+.membership-card dl {
+    text-align: left;
+    margin: 1.5rem 0 2rem;
+    flex-grow: 1;
+}
+
+.membership-card dt {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.membership-card dd {
+    color: #cbd5e1;
+    font-size: 0.95rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.membership-card dd::before {
+    content: '⚡';
+    color: var(--accent);
+    font-size: 0.85rem;
+}
+
+/* ── Opening Hours Table ─────────────────────────────────── */
+.opening-hours {
+    max-width: 900px;
+}
+
+.opening-hours table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--glass-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.opening-hours th {
+    background: rgba(255, 51, 75, 0.15);
+    color: var(--white);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1.3rem 1.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.opening-hours td {
+    padding: 1.2rem 1.8rem;
+    color: #cbd5e1;
+    font-size: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.opening-hours tr:last-child td {
+    border-bottom: none;
+}
+
+.opening-hours tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--white);
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media screen and (max-width: 768px) {
+    .hero {
+        min-height: 60vh;
+        padding: 4rem 1.5rem;
+    }
+    
+    .facilities-container, .membership-cards-container {
+        grid-template-columns: 1fr;
+    }
+
+    .membership-card.elite {
+        transform: none;
+    }
+
+    .membership-card.elite:hover {
+        transform: translateY(-6px);
+    }
+}

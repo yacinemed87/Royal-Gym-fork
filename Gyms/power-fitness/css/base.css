@@ -1,0 +1,76 @@
+/* Power Fitness - Core Design Tokens & Typography */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    /* Brand Colors */
+    --primary: #090d16;
+    --secondary: #111827;
+    --card-bg: #151d30;
+    --card-hover: #1c2740;
+    --bg: #090d16;
+    --bg-darker: #06090f;
+    
+    /* Dynamic Electric Energy Accents */
+    --accent: #ff334b;
+    --accent-hover: #ff4d63;
+    --accent-light: #ff7588;
+    --accent-gradient: linear-gradient(135deg, #ff334b 0%, #ff6b35 100%);
+    --accent-glow: rgba(255, 51, 75, 0.35);
+    
+    --cyan-accent: #00d2d3;
+    --cyan-glow: rgba(0, 210, 211, 0.25);
+
+    /* Text */
+    --text-dark: #0f172a;
+    --text_light: #f8fafc;
+    --text-muted: #94a3b8;
+    --muted: #94a3b8;
+    --white: #ffffff;
+
+    /* Admin specific */
+    --admin-primary: #ff334b;
+    --admin-accent: #ff6b35;
+    --admin-bg: #0b0f19;
+
+    /* UI Tokens */
+    --tertiary: #ff6b35;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-card: rgba(21, 29, 48, 0.75);
+    --radius-sm: 8px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    --glow-shadow: 0 10px 30px rgba(255, 51, 75, 0.3);
+    --focus: 0 0 0 3px rgba(255, 51, 75, 0.3);
+    
+    /* Transitions */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--text_light);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text_light);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
