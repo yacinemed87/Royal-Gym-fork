@@ -90,14 +90,14 @@ function add_subscription($form)
     }
 
     $start_date = date('Y-m-d');
-    $durationDays = intval($plan['duration'] ?: 30);
+    $durationMonths = intval($plan['duration'] ?: 1);
     $plan_id = intval($plan['id']);
-    $end_date = date('Y-m-d', strtotime("+$durationDays days"));
+    $end_date = date('Y-m-d', strtotime("+$durationMonths months"));
     $price_paid = intval($form['price_paid'] ?? $plan['price']);
     $status = $form['status'] ?? 'active';
 
-    $stmt = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationDays, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iiissis", $member_id, $plan_id, $price_paid, $start_date, $end_date, $durationDays, $status);
+    $stmt = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("iiissis", $member_id, $plan_id, $price_paid, $start_date, $end_date, $durationMonths, $status);
     $success = $stmt->execute();
     $stmt->close();
 
@@ -131,7 +131,7 @@ function update_member($data)
 
         if ($plan) {
             $plan_id = intval($plan['id']);
-            $durationDays = intval($plan['duration'] ?: 30);
+            $durationMonths = intval($plan['duration'] ?: 1);
             $price_paid = intval($plan['price']);
 
             $checkSub = $connGym->prepare("SELECT id FROM subscription WHERE member_id = ? ORDER BY id DESC LIMIT 1");
@@ -148,10 +148,10 @@ function update_member($data)
                 $updateSub->close();
             } else {
                 $start_date = date('Y-m-d');
-                $end_date = date('Y-m-d', strtotime("+$durationDays days"));
+                $end_date = date('Y-m-d', strtotime("+$durationMonths months"));
                 $status = 'active';
-                $insertSub = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationDays, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $insertSub->bind_param("iiissis", $id, $plan_id, $price_paid, $start_date, $end_date, $durationDays, $status);
+                $insertSub = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $insertSub->bind_param("iiissis", $id, $plan_id, $price_paid, $start_date, $end_date, $durationMonths, $status);
                 $insertSub->execute();
                 $insertSub->close();
             }

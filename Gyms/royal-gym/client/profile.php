@@ -20,7 +20,8 @@ $joinDate = !empty($member['joinDate']) ? date('d F Y', strtotime($member['joinD
 $words = explode(' ', trim($name));
 $initials = '';
 foreach ($words as $w) {
-	if (!empty($w)) $initials .= strtoupper($w[0]);
+	if (!empty($w))
+		$initials .= strtoupper($w[0]);
 }
 $initials = substr($initials, 0, 2);
 ?>
@@ -73,11 +74,12 @@ $initials = substr($initials, 0, 2);
 				<?php
 				$planName = htmlspecialchars($sub['plan_name'] ?? 'Custom Plan');
 				$pricePaid = number_format($sub['price_paid']) . ' DA';
-				$durationText = htmlspecialchars(($sub['durationDays'] ?: 30) . ' days');
+				$durationText = htmlspecialchars(($sub['durationMonths'] ?: 1) . ' Month');
 				$startDate = $sub['start_date'];
 				$endDate = $sub['end_date'];
 				?>
-				<section class="sub-card" id="subscription" data-start="<?= htmlspecialchars($startDate); ?>" data-end="<?= htmlspecialchars($endDate); ?>">
+				<section class="sub-card" id="subscription" data-start="<?= htmlspecialchars($startDate); ?>"
+					data-end="<?= htmlspecialchars($endDate); ?>">
 					<div class="sub-head">
 						<h3><?= $planName; ?></h3>
 						<span class="sub-status" id="sub-status">—</span>
@@ -106,11 +108,13 @@ $initials = substr($initials, 0, 2);
 					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Renew / Change Plan</a>
 				</section>
 			<?php else: ?>
-				<section class="sub-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem 1.5rem;">
+				<section class="sub-card"
+					style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem 1.5rem;">
 					<div class="sub-head" style="justify-content: center;">
 						<h3>No Active Subscription</h3>
 					</div>
-					<p style="color: var(--text-muted, #94a3b8); margin: 1.5rem 0; font-size: 0.95rem;">You currently do not have an active membership plan.</p>
+					<p style="color: var(--text-muted, #94a3b8); margin: 1.5rem 0; font-size: 0.95rem;">You currently do not
+						have an active membership plan.</p>
 					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Choose a Membership Plan</a>
 				</section>
 			<?php endif; ?>

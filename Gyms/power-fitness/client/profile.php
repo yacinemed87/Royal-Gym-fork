@@ -73,7 +73,7 @@ $initials = substr($initials, 0, 2);
 				<?php
 				$planName = htmlspecialchars($sub['plan_name'] ?? 'Custom Plan');
 				$pricePaid = number_format($sub['price_paid']) . ' DA';
-				$durationText = htmlspecialchars(($sub['durationDays'] ?: 30) . ' days');
+				$durationText = htmlspecialchars(($sub['durationMonths'] ?: 1) . ' Month');
 				$startDate = $sub['start_date'];
 				$endDate = $sub['end_date'];
 				?>

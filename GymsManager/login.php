@@ -133,12 +133,20 @@ if (isset($connReg) && $connReg !== null) {
 
                     <div class="form-group">
                         <label for="password">Password:</label>
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            required />
+                        <div class="input-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                required />
+                            <button type="button" id="toggle-password" class="eye-btn" aria-label="Show password">
+                                <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <?php if ($error !== ""): ?>
@@ -157,6 +165,15 @@ if (isset($connReg) && $connReg !== null) {
             </footer>
         </section>
     </main>
+<script>
+    document.getElementById('toggle-password').addEventListener('click', function () {
+        var input = document.getElementById('password');
+        var isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        this.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+        this.classList.toggle('active', isHidden);
+    });
+</script>
 </body>
 
 </html>
