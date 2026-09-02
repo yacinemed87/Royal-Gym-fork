@@ -237,6 +237,26 @@ main {
     color: var(--primary);
 }
 
+.change-plan-btn {
+    display: block;
+    margin-top: 10px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+    background: transparent;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.change-plan-btn:hover {
+    background-color: var(--accent);
+    color: var(--primary);
+}
+
 /* ── Tablet ── */
 @media screen and (max-width: 768px) {
     .profile-grid {

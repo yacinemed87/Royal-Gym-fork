@@ -9,6 +9,7 @@ $gym = get_gym_info();
 $user_id = $_SESSION['user_id'] ?? 0;
 $member = get_member_profile($user_id);
 $sub = get_member_subscription($user_id);
+$can_change = can_change_plan($sub);
 
 $name = $member['name'] ?? $_SESSION['name'] ?? 'Member';
 $email = $member['email'] ?? $_SESSION['email'] ?? '';
@@ -105,7 +106,10 @@ $initials = substr($initials, 0, 2);
 						<dd id="end-date"><?= date('d F Y', strtotime($endDate)); ?></dd>
 					</dl>
 
-					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Renew / Change Plan</a>
+					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Renew Plan</a>
+					<?php if ($can_change): ?>
+						<a href="<?= GYM_BASE_URL; ?>/client/change_plan.php" class="change-plan-btn">⇄ Change Plan</a>
+					<?php endif; ?>
 				</section>
 			<?php else: ?>
 				<section class="sub-card"

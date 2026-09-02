@@ -5,11 +5,12 @@ require_once PROJECT_ROOT . "/GymsManager/backend/config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/indexBack.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/membershipBack.php";
 
 $login = isset($_SESSION['user_id']);
 $current_page = "home";
 $gym = get_gym_info();
-
+$durations = get_plan_durations();
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +19,7 @@ $gym = get_gym_info();
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="./css/index.css">
+	<link rel="stylesheet" href="./css/index.css?v=<?= filemtime(__DIR__ . '/css/index.css'); ?>">
 	<title><?= htmlspecialchars($gym["name"] ?? "Gym"); ?></title>
 	<link rel="icon" type="image/png" href="assets/images/<?= htmlspecialchars($gym["logo"] ?? "logo.png"); ?>">
 </head>
@@ -41,11 +42,30 @@ $gym = get_gym_info();
 				?>
 			</div>
 		</section>
-		<section class="membership">
+		<section class="membership" id="membership">
 			<h2>Membership Plans</h2>
-			<div class="membership-cards-container" id="plans-preview">
+
+			<?php if (!empty($durations)): ?>
+			<div class="duration-switcher" id="duration-switcher">
+				<?php foreach ($durations as $dur): ?>
+				<button
+					type="button"
+					class="duration-pill<?= intval($dur['months']) === 1 ? ' active' : ''; ?>"
+					data-duration-id="<?= intval($dur['id']); ?>"
+					data-months="<?= intval($dur['months']); ?>"
+					data-discount="<?= floatval($dur['discount_pct']); ?>">
+					<?= htmlspecialchars($dur['label']); ?>
+					<?php if ($dur['discount_pct'] > 0): ?>
+					<span class="pill-badge">-<?= intval($dur['discount_pct']); ?>%</span>
+					<?php endif; ?>
+				</button>
+				<?php endforeach; ?>
+			</div>
+			<?php endif; ?>
+
+			<div class="plans-grid" id="plans-grid">
 				<?php
-				write_plans();
+				write_membership_plan_cards();
 				?>
 			</div>
 		</section>
@@ -59,6 +79,7 @@ $gym = get_gym_info();
 	<?php
 		include __DIR__ . "/client/includes/footer.php"
 	?>
+	<script src="./js/index-plans.js?v=<?= filemtime(__DIR__ . '/js/index-plans.js'); ?>"></script>
 </body>
 
 </html>

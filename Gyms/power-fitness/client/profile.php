@@ -9,6 +9,7 @@ $gym = get_gym_info();
 $user_id = $_SESSION['user_id'] ?? 0;
 $member = get_member_profile($user_id);
 $sub = get_member_subscription($user_id);
+$can_change = can_change_plan($sub);
 
 $name = $member['name'] ?? $_SESSION['name'] ?? 'Member';
 $email = $member['email'] ?? $_SESSION['email'] ?? '';
@@ -20,7 +21,8 @@ $joinDate = !empty($member['joinDate']) ? date('d F Y', strtotime($member['joinD
 $words = explode(' ', trim($name));
 $initials = '';
 foreach ($words as $w) {
-	if (!empty($w)) $initials .= strtoupper($w[0]);
+	if (!empty($w))
+		$initials .= strtoupper($w[0]);
 }
 $initials = substr($initials, 0, 2);
 ?>
@@ -77,7 +79,8 @@ $initials = substr($initials, 0, 2);
 				$startDate = $sub['start_date'];
 				$endDate = $sub['end_date'];
 				?>
-				<section class="sub-card" id="subscription" data-start="<?= htmlspecialchars($startDate); ?>" data-end="<?= htmlspecialchars($endDate); ?>">
+				<section class="sub-card" id="subscription" data-start="<?= htmlspecialchars($startDate); ?>"
+					data-end="<?= htmlspecialchars($endDate); ?>">
 					<div class="sub-head">
 						<h3><?= $planName; ?></h3>
 						<span class="sub-status" id="sub-status">—</span>
@@ -103,14 +106,19 @@ $initials = substr($initials, 0, 2);
 						<dd id="end-date"><?= date('d F Y', strtotime($endDate)); ?></dd>
 					</dl>
 
-					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Renew / Change Plan</a>
+					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Renew Plan</a>
+					<?php if ($can_change): ?>
+						<a href="<?= GYM_BASE_URL; ?>/client/change_plan.php" class="change-plan-btn">⇄ Change Plan</a>
+					<?php endif; ?>
 				</section>
 			<?php else: ?>
-				<section class="sub-card" style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem 1.5rem;">
+				<section class="sub-card"
+					style="text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2.5rem 1.5rem;">
 					<div class="sub-head" style="justify-content: center;">
 						<h3>No Active Subscription</h3>
 					</div>
-					<p style="color: var(--text-muted, #94a3b8); margin: 1.5rem 0; font-size: 0.95rem;">You currently do not have an active membership plan.</p>
+					<p style="color: var(--text-muted, #94a3b8); margin: 1.5rem 0; font-size: 0.95rem;">You currently do not
+						have an active membership plan.</p>
 					<a href="<?= GYM_BASE_URL; ?>/client/membership.php" class="renew-btn">Choose a Membership Plan</a>
 				</section>
 			<?php endif; ?>

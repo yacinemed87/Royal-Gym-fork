@@ -121,96 +121,350 @@ body {
 }
 
 
+/* ==========================================================================
+   Membership Plans Section on Index
+   ========================================================================== */
 .membership {
-	display: flex;
-	flex-direction: column;
-	margin: 0px;
-
 	text-align: center;
-	background-color: var(--primary);
-	padding: 2rem;
+	padding: 4rem 1.5rem;
+	background: linear-gradient(180deg, var(--primary, #071732) 0%, var(--secondary, #031026) 100%);
 }
 
 .membership h2 {
-	color: var(--accent);
+	color: var(--accent, #d4af37);
 	font-family: "Playfair Display", serif;
-	font-size: 3rem;
-	margin-bottom: 1rem;
-}
-
-.membership-card h3 {
-	font-family: "Playfair Display", serif;
-	color: var(--accent);
-	font-size: 1.8rem;
+	font-size: 2.8rem;
 	margin-bottom: 0.5rem;
 }
 
-.membership-cards-container {
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+/* Duration Switcher */
+.duration-switcher {
+	display: inline-flex;
 	justify-content: center;
-	gap: 2rem;
-}
-
-.membership-card {
-	background-color: var(--secondary);
-	color: var(--text_light);
-	padding: 2.5rem 2rem;
-	border: 1px solid var(--glass);
-	border-radius: 1.5rem;
-	display: flex;
-	flex-direction: column;
 	align-items: center;
-	transition: filter 0.2s linear, transform 0.2s linear;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+	gap: 8px;
+	flex-wrap: nowrap;
+	margin: 25px auto 35px;
+	padding: 6px;
+	width: fit-content;
+	max-width: 95%;
+	background: rgba(3, 16, 38, 0.7);
+	border: 1px solid rgba(212, 175, 55, 0.25);
+	border-radius: 999px;
+	backdrop-filter: blur(12px);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
-.membership-card:hover {
-	transform: translateY(-5px);
-	filter: brightness(1.1);
+.duration-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 0.55rem 1.15rem;
+	white-space: nowrap;
+	background: transparent;
+	border: 1.5px solid transparent;
+	border-radius: 999px;
+	color: rgba(255, 255, 255, 0.75);
+	font-family: "Roboto", sans-serif;
+	font-size: 0.95rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	user-select: none;
 }
 
-.membership-card .price {
-	padding: 0.6rem 1.2rem;
-	width: auto;
-	border: 1px solid var(--accent);
-	border-radius: 2rem;
-	background-color: transparent;
-	color: var(--accent);
-	font-weight: 400;
-	font-size: 1.1rem;
-	margin-top: 0.5rem;
+.duration-pill:hover {
+	color: var(--accent, #d4af37);
+	background: rgba(212, 175, 55, 0.08);
+	border-color: rgba(212, 175, 55, 0.3);
 }
 
-.membership-card dl {
-	width: 100%;
-	display: block;
-	margin-top: 1.5rem;
+.duration-pill.active {
+	background: var(--accent, #d4af37);
+	border-color: var(--accent, #d4af37);
+	color: var(--secondary, #031026);
+	font-weight: 700;
+	box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35);
+}
+
+.pill-badge {
+	background: rgba(0, 0, 0, 0.25);
+	border-radius: 999px;
+	padding: 2px 8px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	color: var(--white, #fff);
+	transition: all 0.25s ease;
+}
+
+.duration-pill.active .pill-badge {
+	background: rgba(3, 16, 38, 0.35);
+	color: var(--secondary, #031026);
+}
+
+/* Plans Grid & Cards */
+.plans-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 28px;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 16px;
+	align-items: stretch;
 	text-align: left;
 }
 
-.membership-card dt {
-	font-weight: bold;
-	color: var(--white);
-	margin-top: 0.8rem;
-	font-size: 1rem;
+.plan-card {
+	position: relative;
+	background: linear-gradient(165deg, rgba(7, 23, 50, 0.85) 0%, rgba(3, 16, 38, 0.95) 100%);
+	border: 1.5px solid rgba(212, 175, 55, 0.18);
+	border-radius: 20px;
+	padding: 34px 28px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(10px);
+	transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+				box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+				border-color 0.3s ease;
 }
 
-.membership-card dd {
-	color: var(--muted);
-	margin-left: 0;
-	margin-bottom: 0.5rem;
-	padding-bottom: 0.5rem;
-	border-bottom: 1px solid var(--glass);
+.plan-card:hover {
+	transform: translateY(-6px);
+	border-color: rgba(212, 175, 55, 0.45);
+	box-shadow: 0 24px 50px rgba(0, 0, 0, 0.7),
+				0 0 25px rgba(212, 175, 55, 0.15);
+}
+
+.plan-card.featured {
+	background: linear-gradient(165deg, rgba(14, 38, 78, 0.9) 0%, rgba(3, 16, 38, 0.98) 100%);
+	border: 2px solid var(--accent, #d4af37);
+	box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65),
+				0 0 30px rgba(212, 175, 55, 0.2);
+}
+
+.plan-card.featured:hover {
+	transform: translateY(-8px);
+	box-shadow: 0 28px 60px rgba(0, 0, 0, 0.8),
+				0 0 40px rgba(212, 175, 55, 0.3);
+}
+
+.plan-title {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	padding-bottom: 22px;
+	margin-bottom: 22px;
+}
+
+.plan-title h3 {
+	margin: 0;
+	font-family: "Playfair Display", serif;
+	color: var(--accent, #d4af37);
+	font-size: 1.9rem;
+	font-style: italic;
+	font-weight: 700;
+	letter-spacing: -0.5px;
+}
+
+.plan-price {
+	color: var(--white, #ffffff);
+	font-weight: 700;
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.price-display {
+	font-size: 2rem;
+	font-weight: 800;
+	letter-spacing: -0.5px;
+	font-variant-numeric: tabular-nums;
+	color: var(--white, #ffffff);
+	line-height: 1.1;
+}
+
+.price-unit {
+	font-size: 0.95rem;
+	font-weight: 400;
+	color: #94a3b8;
+}
+
+.price-per-month {
+	font-size: 0.95rem;
+	color: #cbd5e1;
+	margin: 6px 0 0;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	min-height: 1.3em;
+}
+
+.price-per-month:empty {
+	display: none;
+}
+
+.price-strikethrough {
+	color: #94a3b8;
+	text-decoration: line-through;
+	text-decoration-color: #ef4444;
+	font-weight: 500;
+	margin-right: 8px;
 	font-size: 0.95rem;
 }
 
-.membership-card dd:last-child {
-	border-bottom: none;
+.rate-number {
+	color: #ffffff;
+	font-weight: 600;
 }
 
-.elite {
-	border-color: var(--accent);
+.price-savings {
+	display: inline-flex;
+	align-items: center;
+	margin: 6px 0 0;
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: #4ade80;
+	background: rgba(74, 222, 128, 0.12);
+	border: 1px solid rgba(74, 222, 128, 0.3);
+	border-radius: 999px;
+	padding: 3px 12px;
+	min-height: 1.3em;
+	box-shadow: 0 2px 8px rgba(74, 222, 128, 0.15);
+}
+
+.price-savings:empty {
+	display: none;
+}
+
+.plan-features {
+	list-style: none;
+	margin: 0 0 26px 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	flex-grow: 1;
+}
+
+.plan-features li {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	font-size: 0.95rem;
+	line-height: 1.45;
+	color: #e2e8f0;
+}
+
+.plan-features li::before {
+	content: "✓";
+	color: var(--accent, #d4af37);
+	font-weight: 900;
+	font-size: 1rem;
+	flex-shrink: 0;
+	margin-top: -1px;
+}
+
+.plan-cta {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-top: auto;
+	padding-top: 18px;
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.plan-cta .muted {
+	text-align: center;
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 1.2px;
+	color: var(--accent, #d4af37);
+	min-height: 1.2em;
+}
+
+.plan-card:not(.featured) .plan-cta .muted {
+	visibility: hidden;
+}
+
+.btn-ghost {
+	width: 100%;
+	padding: 0.9rem 1.2rem;
+	background: transparent;
+	color: var(--accent, #d4af37);
+	border: 1.5px solid var(--accent, #d4af37);
+	border-radius: 12px;
+	font-family: "Roboto", sans-serif;
+	font-size: 1rem;
+	font-weight: 700;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.btn-ghost:hover {
+	background: var(--accent, #d4af37);
+	color: var(--secondary, #031026);
+	transform: translateY(-2px);
+	box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+}
+
+.plan-card.featured .btn-ghost {
+	background: var(--accent, #d4af37);
+	color: var(--secondary, #031026);
+}
+
+.plan-card.featured .btn-ghost:hover {
+	background: #eed87a;
+	border-color: #eed87a;
+	box-shadow: 0 8px 28px rgba(212, 175, 55, 0.45);
+}
+
+@media (max-width: 980px) {
+	.plans-grid {
+		grid-template-columns: repeat(2, 1fr);
+		gap: 20px;
+	}
+
+	.plan-card:last-child:nth-child(2n + 1) {
+		grid-column: span 2;
+		max-width: 550px;
+		margin: 0 auto;
+		width: 100%;
+	}
+}
+
+@media (max-width: 680px) {
+	.duration-switcher {
+		border-radius: 16px;
+		padding: 6px;
+		gap: 6px;
+	}
+
+	.duration-pill {
+		padding: 0.5rem 0.9rem;
+		font-size: 0.85rem;
+		flex: 1 1 calc(50% - 6px);
+		justify-content: center;
+	}
+
+	.plans-grid {
+		grid-template-columns: 1fr;
+		gap: 20px;
+	}
+
+	.plan-card:last-child:nth-child(2n + 1) {
+		grid-column: auto;
+		max-width: none;
+	}
 }
 
 .opening-hours {

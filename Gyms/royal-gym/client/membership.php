@@ -4,11 +4,13 @@ require_once PROJECT_ROOT . "/GymsManager/backend/config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/membershipBack.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/require_login.php";
 
 $current_page = 'membership';
 $gym = get_gym_info();
 $success_message = '';
 $error_message = '';
+$durations = get_plan_durations();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$result = add_subscription($_POST);
@@ -33,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<link
 		href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&family=Roboto:wght@700&display=swap"
 		rel="stylesheet" />
-	<link rel="stylesheet" href="../css/membership.css" />
+	<link rel="stylesheet" href="../css/membership.css?v=<?= filemtime(__DIR__ . '/../css/membership.css'); ?>" />
 	<link rel="icon" type="image/png" href="<?= GYM_BASE_URL; ?>/assets/images/<?= htmlspecialchars($gym["logo"] ?? "logo.png"); ?>">
 </head>
 
@@ -41,15 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	<?php
 	include __DIR__ . "/includes/header.php"
 	?>
-	<section aria-labelledby="plans-heading">
-		<h2 id="plans-heading" class="sr-only">Membership Plans</h2>
-
-		<div class="plans-grid" id="plans-grid">
-			<?php
-			write_membership_plan_cards();
-			?>
-		</div>
-	</section>
 
 	<section class="register" aria-labelledby="register-heading">
 		<div>
@@ -103,6 +96,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				</fieldset>
 
 				<fieldset class="mt-12">
+					<legend>Select Duration</legend>
+
+					<div class="custom-controls" id="duration-radios" role="radiogroup" aria-label="Membership duration">
+						<?php
+						write_membership_duration_radios();
+						?>
+					</div>
+				</fieldset>
+
+				<fieldset class="mt-12">
 					<legend>Terms</legend>
 
 					<label class="custom terms">
@@ -111,6 +114,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<span>I agree to the terms &amp; conditions</span>
 					</label>
 				</fieldset>
+
+				<!-- Live Order Summary -->
+				<div class="order-summary" id="order-summary">
+					<div class="summary-header">
+						<span class="summary-title">Membership Summary</span>
+						<span class="summary-badge" id="summary-duration-badge">1 Month</span>
+					</div>
+					<div class="summary-body">
+						<div class="summary-row">
+							<span>Selected Plan</span>
+							<strong id="summary-plan-name">—</strong>
+						</div>
+						<div class="summary-row">
+							<span>Duration</span>
+							<span id="summary-duration">—</span>
+						</div>
+						<div class="summary-row" id="summary-savings-row" style="display: none;">
+							<span>Discount &amp; Savings</span>
+							<strong class="savings-text" id="summary-savings">—</strong>
+						</div>
+						<div class="summary-divider"></div>
+						<div class="summary-row total-row">
+							<span>Total to Pay</span>
+							<strong class="total-price" id="summary-total-price">0 DA</strong>
+						</div>
+					</div>
+				</div>
 
 				<div class="submit-row">
 					<button type="submit" class="btn-ghost">
@@ -145,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	include __DIR__ . "/includes/footer.php"
 	?>
 
-	<script src="../js/membership.js"></script>
+	<script src="../js/membership.js?v=<?= filemtime(__DIR__ . '/../js/membership.js'); ?>"></script>
 </body>
 
 </html>

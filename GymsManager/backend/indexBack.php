@@ -47,7 +47,7 @@ function write_plans()
             }
         }
 
-        $durationText = is_numeric($row['duration']) ? ($row['duration'] . ' days') : $row['duration'];
+        $durationText = !empty($row['duration']) ? (is_numeric($row['duration']) ? ($row['duration'] . ' days') : $row['duration']) : 'month';
         $formattedPrice = number_format($row['price']) . ' DA / ' . htmlspecialchars($durationText);
 
         echo "
