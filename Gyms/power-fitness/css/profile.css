@@ -191,6 +191,40 @@ main {
     font-size: 0.95rem;
 }
 
+.countdown-dual {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.count-block {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.count-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.2rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+}
+
+.count-sublabel {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #f1f5f9;
+}
+
+.count-separator {
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--muted, #94a3b8);
+    opacity: 0.6;
+}
+
 /* ── Progress ── */
 .progress-track {
     height: 10px;
@@ -255,6 +289,273 @@ main {
 .change-plan-btn:hover {
     background-color: var(--accent);
     color: var(--primary);
+}
+
+/* ── Queued / Upcoming Renewal Banner ── */
+.queued-renewal-banner {
+    margin: 18px 0;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08) 0%, rgba(3, 16, 38, 0.5) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.35);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    text-align: left;
+}
+
+.queued-renewal-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--accent, #d4af37);
+    margin-bottom: 6px;
+}
+
+.queued-renewal-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    color: #e2e8f0;
+    font-size: 0.92rem;
+}
+
+.queued-renewal-details strong {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.queued-renewal-details span {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+/* ── Edit Profile Button & Modal ── */
+.edit-profile-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: 1.5px solid var(--accent, #d4af37);
+    border-radius: 2rem;
+    color: var(--accent, #d4af37);
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.edit-profile-btn:hover {
+    background: var(--accent, #d4af37);
+    color: var(--primary, #071732);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.25);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    transition: opacity 0.25s ease;
+}
+
+.modal-overlay.hidden {
+    display: none !important;
+}
+
+.modal-card {
+    background: linear-gradient(165deg, rgba(7, 23, 50, 0.98) 0%, rgba(3, 16, 38, 0.98) 100%);
+    border: 1.5px solid rgba(212, 175, 55, 0.35);
+    border-radius: 20px;
+    padding: 30px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8),
+                0 0 35px rgba(212, 175, 55, 0.12);
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-header h3 {
+    font-family: "Playfair Display", serif;
+    font-size: 1.6rem;
+    color: var(--accent, #d4af37);
+    margin: 0;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.8rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: #ffffff;
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.form-group .hint {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: #94a3b8;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(3, 16, 38, 0.8);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    border-radius: 10px;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--accent, #d4af37);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.form-group input.readonly-input {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.btn-cancel {
+    padding: 0.7rem 1.2rem;
+    background: transparent;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel:hover {
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+.btn-save {
+    padding: 0.7rem 1.4rem;
+    background: var(--accent, #d4af37);
+    border: 1.5px solid var(--accent, #d4af37);
+    border-radius: 10px;
+    color: var(--primary, #071732);
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-save:hover {
+    background: #eed87a;
+    border-color: #eed87a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+}
+
+/* Alert messages on profile */
+.profile-msg {
+    padding: 12px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.profile-msg--success {
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    color: #4ade80;
+}
+
+.profile-msg--error {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #ef4444;
+}
+
+/* ── Email Pending Badges ── */
+.email-pending-badge {
+    display: inline-block;
+    margin-top: 5px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.12);
+    border: 1px solid rgba(251, 191, 36, 0.35);
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.2px;
+}
+
+.pending-email-hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.8rem;
+    color: #fbbf24;
+    line-height: 1.4;
 }
 
 /* ── Tablet ── */

@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function validateName() {
 	const input = document.getElementById('name');
 	if (!input) return false;
+	if (input.readOnly) return true;
 	const name = input.value.trim();
 	if (name.length < 3 || !/^[a-zA-Z\s]+$/.test(name)) {
 		setError(input, 'name-error', 'Name must be at least 3 letters only');
@@ -224,6 +225,7 @@ function validateName() {
 function validateEmail() {
 	const input = document.getElementById('email');
 	if (!input) return false;
+	if (input.readOnly) return true;
 	const email = input.value.trim();
 	if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
 		setError(input, 'email-error', 'Enter a valid email address');
@@ -236,6 +238,7 @@ function validateEmail() {
 function validatePhone() {
 	const input = document.getElementById('phone');
 	if (!input) return false;
+	if (input.readOnly) return true;
 	const phone = input.value.trim();
 	if (!phone) {
 		setError(input, 'phone-error', 'Please enter your phone number');
@@ -252,6 +255,7 @@ function validatePhone() {
 function validateGender() {
 	const input = document.getElementById('gender');
 	if (!input) return false;
+	if (input.type === 'hidden' || input.readOnly) return true;
 	if (!input.value) {
 		setError(input, 'gender-error', 'Please select your gender');
 		return false;

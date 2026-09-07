@@ -3,22 +3,30 @@ require_once __DIR__ . "/../config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/handling_members.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/membershipBack.php";
-require_once PROJECT_ROOT . "/GymsManager/backend/require_login.php";
 
 $current_page = 'membership';
 $gym = get_gym_info();
-$success_message = '';
-$error_message = '';
+$success_message = $_SESSION['membership_success'] ?? '';
+$error_message = $_SESSION['membership_error'] ?? '';
+unset($_SESSION['membership_success'], $_SESSION['membership_error']);
 $durations = get_plan_durations();
+
+$isLoggedIn = !empty($_SESSION['user_id']);
+$loggedMember = $isLoggedIn ? get_member_profile($_SESSION['user_id']) : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$result = add_subscription($_POST);
 	if ($result) {
-		$success_message = "Registration submitted! Your subscription is now active.";
+		$_SESSION['membership_success'] = $isLoggedIn 
+			? "Renewal submitted successfully! Your plan has been queued/activated." 
+			: "Registration submitted! Your subscription is now active.";
 	} else {
-		$error_message = "Failed to register. Please check your details and try again.";
+		$_SESSION['membership_error'] = "Failed to register. Please check your details and try again.";
 	}
+	header("Location: " . $_SERVER['REQUEST_URI']);
+	exit;
 }
 ?>
 
@@ -46,7 +54,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 	<section class="register" aria-labelledby="register-heading">
 		<div>
-			<h2 id="register-heading">Join <?= htmlspecialchars($gym["name"] ?? "Royal Gym"); ?></h2>
+			<h2 id="register-heading"><?= $isLoggedIn ? "Renew Membership" : ("Join " . htmlspecialchars($gym["name"] ?? "Royal Gym")); ?></h2>
+
+			<?php if ($isLoggedIn && $loggedMember): ?>
+				<div class="logged-in-notice">
+					<span>Logged in as <strong><?= htmlspecialchars($loggedMember['name']); ?></strong> (<?= htmlspecialchars($loggedMember['email']); ?>)</span>
+					<span class="locked-badge">🔒 Your Info</span>
+				</div>
+			<?php endif; ?>
 
 			<form id="register-form" action="<?= GYM_BASE_URL; ?>/client/membership.php" method="POST" novalidate>
 				<fieldset>
@@ -55,13 +70,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					<div class="row">
 						<div class="col">
 							<label for="name">Full Name</label>
-							<input id="name" name="name" type="text" placeholder="yacine" required />
+							<input id="name" name="name" type="text"
+								value="<?= htmlspecialchars($loggedMember['name'] ?? ''); ?>"
+								<?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="yacine"'; ?> required />
 							<span id="name-error" role="alert"></span>
 						</div>
 
 						<div class="col">
 							<label for="email">Email</label>
-							<input id="email" name="email" type="email" placeholder="yacine@example.com" required />
+							<input id="email" name="email" type="email"
+								value="<?= htmlspecialchars($loggedMember['email'] ?? ''); ?>"
+								<?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="yacine@example.com"'; ?> required />
 							<span id="email-error" role="alert"></span>
 						</div>
 					</div>
@@ -69,18 +88,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					<div class="row mt-12">
 						<div class="col">
 							<label for="phone">Phone</label>
-							<input id="phone" name="phone" type="tel" placeholder="0123456789" />
+							<input id="phone" name="phone" type="tel"
+								value="<?= htmlspecialchars($loggedMember['phone'] ?? ''); ?>"
+								<?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="0123456789"'; ?> />
 							<span id="phone-error" role="alert"></span>
 						</div>
 
 						<div class="col">
 							<label for="gender">Gender</label>
-							<select id="gender" name="gender" required>
-								<option value="">Select Gender</option>
-								<option value="Male">Male</option>
-								<option value="Female">Female</option>
-							</select>
-							<span id="gender-error" role="alert"></span>
+							<?php if ($isLoggedIn): ?>
+								<input type="text" value="<?= htmlspecialchars($loggedMember['gender'] ?? 'Not specified'); ?>" readonly class="readonly-input" />
+								<input id="gender" type="hidden" name="gender" value="<?= htmlspecialchars($loggedMember['gender'] ?? 'Male'); ?>" />
+							<?php else: ?>
+								<select id="gender" name="gender" required>
+									<option value="">Select Gender</option>
+									<option value="Male">Male</option>
+									<option value="Female">Female</option>
+								</select>
+								<span id="gender-error" role="alert"></span>
+							<?php endif; ?>
 						</div>
 					</div>
 				</fieldset>
@@ -144,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 				<div class="submit-row">
 					<button type="submit" class="btn-ghost">
-						Register &amp; Continue
+						<?= $isLoggedIn ? "Renew Plan &amp; Continue" : "Register &amp; Continue"; ?>
 					</button>
 					<div class="muted">
 						You will be directed to secure payment.

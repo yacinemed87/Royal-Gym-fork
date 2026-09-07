@@ -442,6 +442,51 @@ select:focus {
 	box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
+/* Readonly / Locked Info for Logged In Members */
+.readonly-input {
+	background: rgba(255, 255, 255, 0.04) !important;
+	border-color: rgba(255, 255, 255, 0.1) !important;
+	color: #94a3b8 !important;
+	cursor: not-allowed !important;
+	user-select: none;
+}
+
+.readonly-input:focus {
+	border-color: rgba(255, 255, 255, 0.1) !important;
+	box-shadow: none !important;
+	outline: none !important;
+	background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.logged-in-notice {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 18px;
+	margin-bottom: 24px;
+	background: rgba(212, 175, 55, 0.08);
+	border: 1px solid rgba(212, 175, 55, 0.3);
+	border-radius: 12px;
+	font-size: 0.92rem;
+	color: #e2e8f0;
+}
+
+.logged-in-notice strong {
+	color: var(--accent, #d4af37);
+}
+
+.locked-badge {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.8px;
+	padding: 4px 10px;
+	background: rgba(0, 0, 0, 0.35);
+	border: 1px solid rgba(212, 175, 55, 0.25);
+	border-radius: 999px;
+	color: var(--accent, #d4af37);
+}
+
 /* Validation styling */
 .input--error {
 	border-color: #ef4444 !important;

@@ -56,9 +56,9 @@ function add_subscription($form)
     $phone = trim($form['phone'] ?? '');
     $plan_id = get_plan_id(trim($form['plan'] ?? ''));
     $plan = get_plan_info($plan_id);
-    $member_id = null;
+    $member_id = !empty($_SESSION['user_id']) ? intval($_SESSION['user_id']) : null;
 
-    if (!empty($email)) {
+    if (!$member_id && !empty($email)) {
         $stmt = $connGym->prepare("SELECT id FROM members WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -107,11 +107,38 @@ function add_subscription($form)
     $durationMonths = intval($duration_row['months'] ?? 1);
     $discount_pct   = floatval($duration_row['discount_pct'] ?? 0);
     $plan_id        = intval($plan['id']);
-    $start_date     = date('Y-m-d');
-    $end_date       = date('Y-m-d', strtotime("+" . ($durationMonths * 30) . " days"));
     $base_price     = intval($plan['price']);
     $price_paid     = intval($form['price_paid'] ?? round($base_price * $durationMonths * (1 - $discount_pct / 100)));
-    $status         = $form['status'] ?? 'active';
+
+    // Sync member subscriptions first (auto-expire past ones, activate eligible pending ones)
+    sync_member_subscriptions($member_id);
+
+    $today = date('Y-m-d');
+
+    // Check if the member already has active or queued subscriptions (find furthest end date)
+    $checkStmt = $connGym->prepare("
+        SELECT MAX(end_date) AS furthest_end 
+        FROM subscription 
+        WHERE member_id = ? AND status IN ('active', 'pending') AND end_date >= ?
+    ");
+    $checkStmt->bind_param("is", $member_id, $today);
+    $checkStmt->execute();
+    $existingRow = $checkStmt->get_result()->fetch_assoc();
+    $checkStmt->close();
+
+    $furthestEnd = $existingRow['furthest_end'] ?? null;
+
+    if (!empty($furthestEnd)) {
+        // Queue this new subscription right after the furthest subscription finishes!
+        $start_date = date('Y-m-d', strtotime('+1 day', strtotime($furthestEnd)));
+        $end_date   = date('Y-m-d', strtotime("+$durationMonths months", strtotime($start_date)));
+        $status     = 'pending';
+    } else {
+        // No current active subscription: starts today as active
+        $start_date = $today;
+        $end_date   = date('Y-m-d', strtotime("+$durationMonths months", strtotime($today)));
+        $status     = 'active';
+    }
 
     $stmt = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, duration_id, discount_pct, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $stmt->bind_param("iiissidds", $member_id, $plan_id, $price_paid, $start_date, $end_date, $durationMonths, $duration_id, $discount_pct, $status);
@@ -179,6 +206,31 @@ function update_member($data)
     return true;
 }
 
+// Updates member profile (name, phone, gender, optional password) from member profile page
+function update_member_profile($user_id, $name, $phone, $gender, $password = '')
+{
+    global $connGym;
+    if (!$connGym || empty($user_id))
+        return false;
+
+    $user_id = intval($user_id);
+    $name    = trim($name);
+    $phone   = trim($phone);
+
+    if (!empty($password)) {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $connGym->prepare("UPDATE members SET name = ?, phone = ?, gender = ?, password = ? WHERE id = ?");
+        $stmt->bind_param("ssssi", $name, $phone, $gender, $hashed, $user_id);
+    } else {
+        $stmt = $connGym->prepare("UPDATE members SET name = ?, phone = ?, gender = ? WHERE id = ?");
+        $stmt->bind_param("sssi", $name, $phone, $gender, $user_id);
+    }
+
+    $ok = $stmt->execute();
+    $stmt->close();
+    return $ok;
+}
+
 // Retrieves member (or staff) profile data by user ID
 function get_member_profile($user_id)
 {
@@ -203,18 +255,66 @@ function get_member_profile($user_id)
     return $member;
 }
 
-// Fetches the latest subscription and plan details for a member
+// Automatically expires past subscriptions and activates pending ones when their start date arrives
+function sync_member_subscriptions($member_id)
+{
+    global $connGym;
+    if (!$connGym || empty($member_id))
+        return;
+
+    $today = date('Y-m-d');
+
+    // 1. Mark active subscriptions that have passed their end_date as 'expired'
+    $expStmt = $connGym->prepare("
+        UPDATE subscription 
+        SET status = 'expired' 
+        WHERE member_id = ? AND status = 'active' AND end_date < ?
+    ");
+    $expStmt->bind_param("is", $member_id, $today);
+    $expStmt->execute();
+    $expStmt->close();
+
+    // 2. Check if there is currently any 'active' subscription
+    $activeStmt = $connGym->prepare("
+        SELECT id FROM subscription 
+        WHERE member_id = ? AND status = 'active' AND end_date >= ?
+        LIMIT 1
+    ");
+    $activeStmt->bind_param("is", $member_id, $today);
+    $activeStmt->execute();
+    $hasActive = $activeStmt->get_result()->fetch_assoc();
+    $activeStmt->close();
+
+    // 3. If no active subscription exists, activate the earliest pending subscription whose start_date has arrived
+    if (!$hasActive) {
+        $actStmt = $connGym->prepare("
+            UPDATE subscription 
+            SET status = 'active' 
+            WHERE member_id = ? AND status = 'pending' AND start_date <= ?
+            ORDER BY start_date ASC 
+            LIMIT 1
+        ");
+        $actStmt->bind_param("is", $member_id, $today);
+        $actStmt->execute();
+        $actStmt->close();
+    }
+}
+
+// Fetches the active subscription and any queued pending subscription for a member
 function get_member_subscription($member_id)
 {
     global $connGym;
     if (!$connGym || empty($member_id))
         return null;
 
+    sync_member_subscriptions($member_id);
+
+    // 1. Fetch active subscription
     $stmt = $connGym->prepare("
         SELECT s.*, p.name AS plan_name, p.price AS plan_price
         FROM subscription s
         LEFT JOIN plans p ON s.plan_id = p.id
-        WHERE s.member_id = ?
+        WHERE s.member_id = ? AND s.status = 'active'
         ORDER BY s.id DESC
         LIMIT 1
     ");
@@ -222,6 +322,62 @@ function get_member_subscription($member_id)
     $stmt->execute();
     $sub = $stmt->get_result()->fetch_assoc();
     $stmt->close();
+
+    // 2. If no active subscription, fetch the most recent subscription (e.g. pending or expired)
+    if (!$sub) {
+        $stmt = $connGym->prepare("
+            SELECT s.*, p.name AS plan_name, p.price AS plan_price
+            FROM subscription s
+            LEFT JOIN plans p ON s.plan_id = p.id
+            WHERE s.member_id = ?
+            ORDER BY s.id DESC
+            LIMIT 1
+        ");
+        $stmt->bind_param("i", $member_id);
+        $stmt->execute();
+        $sub = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+    }
+
+    if (!$sub) {
+        return null;
+    }
+
+    // 3. If active, also fetch any queued/pending subscription
+    $sub['pending_sub'] = null;
+    if ($sub['status'] === 'active') {
+        $qStmt = $connGym->prepare("
+            SELECT s.*, p.name AS plan_name, p.price AS plan_price
+            FROM subscription s
+            LEFT JOIN plans p ON s.plan_id = p.id
+            WHERE s.member_id = ? AND s.status = 'pending' AND s.id != ?
+            ORDER BY s.start_date ASC
+            LIMIT 1
+        ");
+        $subId = intval($sub['id']);
+        $qStmt->bind_param("ii", $member_id, $subId);
+        $qStmt->execute();
+        $pending = $qStmt->get_result()->fetch_assoc();
+        $qStmt->close();
+
+        if ($pending) {
+            $sub['pending_sub'] = $pending;
+        }
+    }
+
+    // Query furthest end date across all active and pending subscriptions
+    $today = date('Y-m-d');
+    $fStmt = $connGym->prepare("
+        SELECT MAX(end_date) AS furthest_end 
+        FROM subscription 
+        WHERE member_id = ? AND status IN ('active', 'pending') AND end_date >= ?
+    ");
+    $fStmt->bind_param("is", $member_id, $today);
+    $fStmt->execute();
+    $fRow = $fStmt->get_result()->fetch_assoc();
+    $fStmt->close();
+
+    $sub['furthest_end_date'] = $fRow['furthest_end'] ?? $sub['end_date'];
 
     return $sub;
 }
@@ -307,19 +463,75 @@ function change_plan($sub_id, $new_plan_id, $new_price_paid, $new_end_date)
     return $ok;
 }
 
-// Records a pending refund request in the database when a member downgrades a plan
-function insert_refund_request($member_id, $amount, $reason = '')
+// Records a general member request (refund, email_change, etc.) in the requests table
+function insert_member_request($member_id, $request_type, $amount = null, $new_value = null, $reason = '')
 {
     global $connGym;
     if (!$connGym)
         return false;
 
-    $member_id = intval($member_id);
-    $amount    = intval(abs($amount));
-    $stmt = $connGym->prepare("INSERT INTO refund_requests (member_id, amount, reason) VALUES (?, ?, ?)");
-    $stmt->bind_param("iis", $member_id, $amount, $reason);
+    $member_id    = intval($member_id);
+    $request_type = trim($request_type);
+    $new_value    = $new_value !== null ? trim($new_value) : null;
+    $reason       = trim($reason);
+
+    if ($request_type === 'email_change') {
+        $existing = get_pending_email_request($member_id);
+        if ($existing) {
+            // Update the pending request if email changed, without creating duplicate rows
+            if (strtolower($existing['new_value']) !== strtolower($new_value)) {
+                $uStmt = $connGym->prepare("UPDATE requests SET new_value = ?, created_at = NOW() WHERE id = ?");
+                $uStmt->bind_param("si", $new_value, $existing['id']);
+                $uStmt->execute();
+                $uStmt->close();
+            }
+            return true;
+        }
+    }
+
+    if ($amount !== null) {
+        $amount = intval(abs($amount));
+        $stmt = $connGym->prepare("
+            INSERT INTO requests (member_id, request_type, amount, new_value, reason, status) 
+            VALUES (?, ?, ?, ?, ?, 'pending')
+        ");
+        $stmt->bind_param("isiss", $member_id, $request_type, $amount, $new_value, $reason);
+    } else {
+        $stmt = $connGym->prepare("
+            INSERT INTO requests (member_id, request_type, amount, new_value, reason, status) 
+            VALUES (?, ?, NULL, ?, ?, 'pending')
+        ");
+        $stmt->bind_param("isss", $member_id, $request_type, $new_value, $reason);
+    }
+
     $ok = $stmt->execute();
     $stmt->close();
-
     return $ok;
+}
+
+// Backward-compatible wrapper for refund requests
+function insert_refund_request($member_id, $amount, $reason = '')
+{
+    return insert_member_request($member_id, 'refund', $amount, null, $reason);
+}
+
+// Checks if a member has a pending email change request
+function get_pending_email_request($member_id)
+{
+    global $connGym;
+    if (!$connGym)
+        return null;
+
+    $member_id = intval($member_id);
+    $stmt = $connGym->prepare("
+        SELECT * FROM requests 
+        WHERE member_id = ? AND request_type = 'email_change' AND status = 'pending' 
+        ORDER BY id DESC LIMIT 1
+    ");
+    $stmt->bind_param("i", $member_id);
+    $stmt->execute();
+    $req = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    return $req;
 }
