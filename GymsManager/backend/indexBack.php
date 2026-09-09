@@ -3,6 +3,8 @@
 function write_facilities()
 {
     global $connGym;
+    $gym = get_gym_info();
+    $gymName = htmlspecialchars($gym['name'] ?? 'Gym');
 
     $sql = "SELECT * FROM facilities";
     $stmt = $connGym->prepare($sql);
@@ -10,11 +12,13 @@ function write_facilities()
     $result = $stmt->get_result();
 
     while ($row = $result->fetch_assoc()) {
+        $facilityName = htmlspecialchars($row['name']);
+        $facilityDesc = htmlspecialchars($row['discription']);
         echo "
     <article class='facility-card'>
-    <h3>{$row['name']}</h3>
-    <p>{$row['discription']}</p>
-    <img src='" . GYM_BASE_URL . $row['image'] . "' alt='Royal Gym {$row['name']} Picture'>
+    <h3>{$facilityName}</h3>
+    <p>{$facilityDesc}</p>
+    <img src='" . GYM_BASE_URL . htmlspecialchars($row['image']) . "' alt='{$gymName} {$facilityName} Picture'>
     </article>
     ";
     }
@@ -79,11 +83,14 @@ function write_opening_hours_table()
     echo "<table>";
     echo "<tr><th>Day</th><th>Opening Time</th><th>Closing Time</th></tr>";
     while ($row = $result->fetch_assoc()) {
+        $day = htmlspecialchars($row['day']);
+        $openTime = htmlspecialchars($row['opening_time']);
+        $closeTime = htmlspecialchars($row['closing_time']);
         echo "
         <tr>
-            <td>{$row['day']}</td>
-            <td>{$row['opening_time']}</td>
-            <td>{$row['closing_time']}</td>
+            <td>{$day}</td>
+            <td>{$openTime}</td>
+            <td>{$closeTime}</td>
         </tr>
         ";
     }

@@ -16,9 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		update_member($_POST);
 	} elseif ($action === 'delete') {
 		if (($_SESSION['role'] ?? '') === 'super_admin') {
-			$delete_id = intval($_POST['id'] ?? 0);
-			$connGym->query("DELETE FROM subscription WHERE member_id = $delete_id");
-			$connGym->query("DELETE FROM members WHERE id = $delete_id");
+				$delete_id = intval($_POST['id'] ?? 0);
+			$stmt1 = $connGym->prepare("DELETE FROM subscription WHERE member_id = ?");
+			$stmt1->bind_param("i", $delete_id);
+			$stmt1->execute();
+			$stmt1->close();
+			$stmt2 = $connGym->prepare("DELETE FROM members WHERE id = ?");
+			$stmt2->bind_param("i", $delete_id);
+			$stmt2->execute();
+			$stmt2->close();
 		}
 	}
 
@@ -129,11 +135,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					<label class="label">Phone</label>
 					<input type="text" name="phone" id="inputPhone" class="input" placeholder="e.g. +213555050550" required />
 				</div>
+				<div class="form-group" id="groupSubscription" style="display: none;">
+					<label class="label">Target Subscription (Edit Only)</label>
+					<select name="subscription_id" id="inputSubscriptionId" class="input select">
+					</select>
+				</div>
 				<div class="form-group">
 					<label class="label">Plan</label>
 					<select name="plan" id="inputPlan" class="input select">
 						<?php write_plan_options(); ?>
 					</select>
+				</div>
+				<div class="form-group">
+					<label class="label">Duration (Months)</label>
+					<input type="number" name="durationMonths" id="inputDuration" class="input" value="1" min="1" required />
+				</div>
+				<div class="form-group" id="groupPriceDiff" style="display: none;">
+					<label class="label">Price Adjustment (DA) <small>(Paid extra = positive, Refunded = negative)</small></label>
+					<input type="number" name="price_diff" id="inputPriceDiff" class="input" value="0" />
 				</div>
 
 				<div class="modal-footer">

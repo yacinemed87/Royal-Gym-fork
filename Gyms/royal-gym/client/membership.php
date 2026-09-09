@@ -18,12 +18,14 @@ $loggedMember = $isLoggedIn ? get_member_profile($_SESSION['user_id']) : null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$result = add_subscription($_POST);
-	if ($result) {
-		$_SESSION['membership_success'] = $isLoggedIn 
-			? "Renewal submitted successfully! Your plan has been queued/activated." 
-			: "Registration submitted! Your subscription is now active.";
+	if ($result === 'active') {
+		$_SESSION['membership_success'] = "Subscription successful! Your plan is now active.";
+	} elseif ($result === 'pending') {
+		$_SESSION['membership_success'] = "Renewal successful! Your new plan is queued and will start when your current one finishes.";
+	} elseif ($result === 'pending_approval') {
+		$_SESSION['membership_success'] = "Registration submitted! Your subscription is pending admin approval.";
 	} else {
-		$_SESSION['membership_error'] = "Failed to register. Please check your details and try again.";
+		$_SESSION['membership_error'] = "Failed to register or you already have a pending request. Please check your details and try again.";
 	}
 	header("Location: " . $_SERVER['REQUEST_URI']);
 	exit;
@@ -44,21 +46,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;600&family=Roboto:wght@700&display=swap"
 		rel="stylesheet" />
 	<link rel="stylesheet" href="../css/membership.css?v=<?= filemtime(__DIR__ . '/../css/membership.css'); ?>" />
-	<link rel="icon" type="image/png" href="<?= GYM_BASE_URL; ?>/assets/images/<?= htmlspecialchars($gym["logo"] ?? "logo.png"); ?>">
+	<link rel="icon" type="image/png"
+		href="<?= GYM_BASE_URL; ?>/assets/images/<?= htmlspecialchars($gym["logo"] ?? "logo.png"); ?>">
 </head>
 
 <body>
 	<?php
 	include __DIR__ . "/includes/header.php"
-	?>
+		?>
 
 	<section class="register" aria-labelledby="register-heading">
 		<div>
-			<h2 id="register-heading"><?= $isLoggedIn ? "Renew Membership" : ("Join " . htmlspecialchars($gym["name"] ?? "Royal Gym")); ?></h2>
+			<h2 id="register-heading">
+				<?= $isLoggedIn ? "Renew Membership" : ("Join " . htmlspecialchars($gym["name"] ?? "Royal Gym")); ?>
+			</h2>
+
+			<?php if (!empty($success_message)): ?>
+				<div id="success-msg" style="color: #d4af37; font-weight: 700; margin-top: 10px;">
+					✓
+					<?= htmlspecialchars($success_message); ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if (!empty($error_message)): ?>
+				<div id="error-msg" style="color: #ef4444; font-weight: 700; margin-top: 10px;">
+					⚠
+					<?= htmlspecialchars($error_message); ?>
+				</div>
+			<?php endif; ?>
+
+			<br>
 
 			<?php if ($isLoggedIn && $loggedMember): ?>
 				<div class="logged-in-notice">
-					<span>Logged in as <strong><?= htmlspecialchars($loggedMember['name']); ?></strong> (<?= htmlspecialchars($loggedMember['email']); ?>)</span>
+					<span>Logged in as <strong><?= htmlspecialchars($loggedMember['name']); ?></strong>
+						(<?= htmlspecialchars($loggedMember['email']); ?>)</span>
 					<span class="locked-badge">🔒 Your Info</span>
 				</div>
 			<?php endif; ?>
@@ -71,16 +93,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<div class="col">
 							<label for="name">Full Name</label>
 							<input id="name" name="name" type="text"
-								value="<?= htmlspecialchars($loggedMember['name'] ?? ''); ?>"
-								<?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="yacine"'; ?> required />
+								value="<?= htmlspecialchars($loggedMember['name'] ?? ''); ?>" <?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="yacine"'; ?> required />
 							<span id="name-error" role="alert"></span>
 						</div>
 
 						<div class="col">
 							<label for="email">Email</label>
 							<input id="email" name="email" type="email"
-								value="<?= htmlspecialchars($loggedMember['email'] ?? ''); ?>"
-								<?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="yacine@example.com"'; ?> required />
+								value="<?= htmlspecialchars($loggedMember['email'] ?? ''); ?>" <?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="yacine@example.com"'; ?> required />
 							<span id="email-error" role="alert"></span>
 						</div>
 					</div>
@@ -89,16 +109,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 						<div class="col">
 							<label for="phone">Phone</label>
 							<input id="phone" name="phone" type="tel"
-								value="<?= htmlspecialchars($loggedMember['phone'] ?? ''); ?>"
-								<?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="0123456789"'; ?> />
+								value="<?= htmlspecialchars($loggedMember['phone'] ?? ''); ?>" <?= $isLoggedIn ? 'readonly class="readonly-input"' : 'placeholder="0123456789"'; ?> />
 							<span id="phone-error" role="alert"></span>
 						</div>
 
 						<div class="col">
 							<label for="gender">Gender</label>
 							<?php if ($isLoggedIn): ?>
-								<input type="text" value="<?= htmlspecialchars($loggedMember['gender'] ?? 'Not specified'); ?>" readonly class="readonly-input" />
-								<input id="gender" type="hidden" name="gender" value="<?= htmlspecialchars($loggedMember['gender'] ?? 'Male'); ?>" />
+								<input type="text"
+									value="<?= htmlspecialchars($loggedMember['gender'] ?? 'Not specified'); ?>" readonly
+									class="readonly-input" />
+								<input id="gender" type="hidden" name="gender"
+									value="<?= htmlspecialchars($loggedMember['gender'] ?? 'Male'); ?>" />
 							<?php else: ?>
 								<select id="gender" name="gender" required>
 									<option value="">Select Gender</option>
@@ -124,7 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 				<fieldset class="mt-12">
 					<legend>Select Duration</legend>
 
-					<div class="custom-controls" id="duration-radios" role="radiogroup" aria-label="Membership duration">
+					<div class="custom-controls" id="duration-radios" role="radiogroup"
+						aria-label="Membership duration">
 						<?php
 						write_membership_duration_radios();
 						?>
@@ -177,18 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 					</div>
 				</div>
 
-				<?php if (!empty($success_message)): ?>
-					<div id="success-msg" style="color: #d4af37; font-weight: 700; margin-top: 10px;">
-						✓ <?= htmlspecialchars($success_message); ?>
-					</div>
-				<?php endif; ?>
-
-				<?php if (!empty($error_message)): ?>
-					<div id="error-msg" style="color: #ef4444; font-weight: 700; margin-top: 10px;">
-						⚠ <?= htmlspecialchars($error_message); ?>
-					</div>
-				<?php endif; ?>
-
 				<div class="payments">
 					<div class="pay">CIB</div>
 					<div class="pay">EDDAHABIA</div>
@@ -199,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 	<?php
 	include __DIR__ . "/includes/footer.php"
-	?>
+		?>
 
 	<script src="../js/membership.js?v=<?= filemtime(__DIR__ . '/../js/membership.js'); ?>"></script>
 </body>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/email_utils.php";
 
 // Creates a new member record with a default hashed password and returns the new ID
 function add_member($member)
@@ -40,11 +41,196 @@ function get_plan_info($plan_id)
 {
     global $connGym;
     $stmt = $connGym->prepare("SELECT id, name, price FROM plans WHERE id = ?");
-    $stmt->bind_param("s", $plan_id);
+    $stmt->bind_param("i", $plan_id);
     $stmt->execute();
     $result = $stmt->get_result()->fetch_assoc();
     $stmt->close();
     return $result;
+}
+
+function find_member_by_contact($email, $phone)
+{
+    global $connGym;
+    if (!empty($email)) {
+        $stmt = $connGym->prepare("SELECT id FROM members WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($result) return $result['id'];
+    }
+    if (!empty($phone)) {
+        $stmt = $connGym->prepare("SELECT id FROM members WHERE phone = ?");
+        $stmt->bind_param("s", $phone);
+        $stmt->execute();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        if ($result) return $result['id'];
+    }
+    return null;
+}
+
+function handle_new_member_signup($form, $plan_id, $duration_id, $durationMonths, $discount_pct, $price_paid)
+{
+    $details = json_encode([
+        'form' => $form, // Save the full form to create the member later
+        'plan_id' => $plan_id,
+        'duration_id' => $duration_id,
+        'durationMonths' => $durationMonths,
+        'discount_pct' => $discount_pct,
+        'price_paid' => $price_paid
+    ]);
+    // Insert with member_id = NULL
+    $success = insert_member_request(null, 'membership', $price_paid, $details, 'New member signup request');
+    if ($success) {
+        $toEmail = $form['email'] ?? '';
+        $toName = $form['name'] ?? 'New Member';
+        if (!empty($toEmail)) {
+            send_membership_pending_email($toEmail, $toName);
+        }
+        return 'pending_approval';
+    }
+    return false;
+}
+
+function get_furthest_end_date($member_id)
+{
+    global $connGym;
+    $today = date('Y-m-d');
+    $stmt = $connGym->prepare("
+        SELECT MAX(end_date) AS furthest_end 
+        FROM subscription 
+        WHERE member_id = ? AND status IN ('active', 'pending') AND end_date >= ?
+    ");
+    $stmt->bind_param("is", $member_id, $today);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $row['furthest_end'] ?? null;
+}
+
+function calculate_subscription_dates($member_id, $durationMonths)
+{
+    $today = date('Y-m-d');
+    $furthestEnd = get_furthest_end_date($member_id);
+
+    if (!empty($furthestEnd)) {
+        // Queue this new subscription right after the furthest subscription finishes!
+        $start_date = date('Y-m-d', strtotime('+1 day', strtotime($furthestEnd)));
+        $end_date   = date('Y-m-d', strtotime("+$durationMonths months", strtotime($start_date)));
+        $status     = 'pending';
+    } else {
+        // No current active subscription: starts today as active
+        $start_date = $today;
+        $end_date   = date('Y-m-d', strtotime("+$durationMonths months", strtotime($today)));
+        $status     = 'active';
+    }
+
+    return ['start_date' => $start_date, 'end_date' => $end_date, 'status' => $status];
+}
+
+function recalculate_subscription_queue($member_id) {
+    global $connGym;
+    // We fetch all active and pending subscriptions ordered by start_date ASC
+    $stmt = $connGym->prepare("SELECT id, start_date, durationMonths, status FROM subscription WHERE member_id = ? AND status IN ('active', 'pending') ORDER BY start_date ASC, id ASC");
+    $stmt->bind_param("i", $member_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    $subs = [];
+    while ($row = $result->fetch_assoc()) {
+        $subs[] = $row;
+    }
+    $stmt->close();
+
+    $today = date('Y-m-d');
+    $current_end_date = null;
+
+    foreach ($subs as $sub) {
+        $start_date = $sub['start_date'];
+        $status = $sub['status'];
+        
+        if ($status === 'active') {
+            // We do not change an active subscription's start date.
+            $end_date = date('Y-m-d', strtotime("+" . $sub['durationMonths'] . " months", strtotime($start_date)));
+            $current_end_date = $end_date;
+            
+            $uStmt = $connGym->prepare("UPDATE subscription SET end_date = ? WHERE id = ?");
+            $uStmt->bind_param("si", $end_date, $sub['id']);
+            $uStmt->execute();
+            $uStmt->close();
+        } 
+        else if ($status === 'pending') {
+            // Pending subscriptions start the day after the previous one finishes.
+            if ($current_end_date && $current_end_date >= $today) {
+                $start_date = date('Y-m-d', strtotime('+1 day', strtotime($current_end_date)));
+                $end_date = date('Y-m-d', strtotime("+" . $sub['durationMonths'] . " months", strtotime($start_date)));
+                $current_end_date = $end_date;
+                
+                $uStmt = $connGym->prepare("UPDATE subscription SET start_date = ?, end_date = ? WHERE id = ?");
+                $uStmt->bind_param("ssi", $start_date, $end_date, $sub['id']);
+                $uStmt->execute();
+                $uStmt->close();
+            } else {
+                // It should start today and become active!
+                $start_date = $today;
+                $end_date = date('Y-m-d', strtotime("+" . $sub['durationMonths'] . " months", strtotime($start_date)));
+                $current_end_date = $end_date;
+                $new_status = 'active';
+                
+                $uStmt = $connGym->prepare("UPDATE subscription SET start_date = ?, end_date = ?, status = ? WHERE id = ?");
+                $uStmt->bind_param("sssi", $start_date, $end_date, $new_status, $sub['id']);
+                $uStmt->execute();
+                $uStmt->close();
+            }
+        }
+    }
+}
+
+function edit_specific_subscription($member_id, $sub_id, $plan_name, $durationMonths, $price_diff) {
+    global $connGym;
+    $planStmt = $connGym->prepare("SELECT id FROM plans WHERE name = ? LIMIT 1");
+    $planStmt->bind_param("s", $plan_name);
+    $planStmt->execute();
+    $plan = $planStmt->get_result()->fetch_assoc();
+    $planStmt->close();
+
+    if (!$plan) return false;
+    $plan_id = intval($plan['id']);
+
+    // Fetch the old subscription
+    $sStmt = $connGym->prepare("SELECT * FROM subscription WHERE id = ? AND member_id = ? AND status IN ('active', 'pending')");
+    $sStmt->bind_param("ii", $sub_id, $member_id);
+    $sStmt->execute();
+    $oldSub = $sStmt->get_result()->fetch_assoc();
+    $sStmt->close();
+
+    if (!$oldSub) return false;
+
+    // Mark old as replaced
+    $uStmt = $connGym->prepare("UPDATE subscription SET status = 'replaced' WHERE id = ?");
+    $uStmt->bind_param("i", $sub_id);
+    $uStmt->execute();
+    $uStmt->close();
+
+    // Create new copy
+    $new_price_paid = intval($oldSub['price_paid']) + intval($price_diff);
+    $status = $oldSub['status'];
+    $start_date = $oldSub['start_date'];
+    $end_date = date('Y-m-d', strtotime("+$durationMonths months", strtotime($start_date)));
+
+    $duration_id = $oldSub['duration_id'];
+    $discount_pct = $oldSub['discount_pct'];
+
+    $iStmt = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, duration_id, discount_pct, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $iStmt->bind_param("iiissidds", $member_id, $plan_id, $new_price_paid, $start_date, $end_date, $durationMonths, $duration_id, $discount_pct, $status);
+    $iStmt->execute();
+    $iStmt->close();
+
+    // Cascade updates
+    recalculate_subscription_queue($member_id);
+
+    return true;
 }
 
 // Subscribes a member to a plan with the chosen duration and calculates the final price
@@ -58,36 +244,24 @@ function add_subscription($form)
     $plan = get_plan_info($plan_id);
     $member_id = !empty($_SESSION['user_id']) ? intval($_SESSION['user_id']) : null;
 
-    if (!$member_id && !empty($email)) {
-        $stmt = $connGym->prepare("SELECT id FROM members WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        if ($result) {
-            $member_id = $result['id'];
-        }
-    }
-
-    if (!$member_id && !empty($phone)) {
-        $stmt = $connGym->prepare("SELECT id FROM members WHERE phone = ?");
-        $stmt->bind_param("s", $phone);
-        $stmt->execute();
-        $result = $stmt->get_result()->fetch_assoc();
-        $stmt->close();
-
-        if ($result) {
-            $member_id = $result['id'];
-        }
-    }
-
     if (!$member_id) {
-        $member_id = add_member($form);
-        if (!$member_id) {
+        $member_id = find_member_by_contact($email, $phone);
+    }
+
+    if ($member_id) {
+        // Prevent bypassing approval: Check if they are already waiting for membership approval
+        $reqStmt = $connGym->prepare("SELECT id FROM requests WHERE member_id = ? AND request_type = 'membership' AND status = 'pending'");
+        $reqStmt->bind_param("i", $member_id);
+        $reqStmt->execute();
+        $pendingReq = $reqStmt->get_result()->fetch_assoc();
+        $reqStmt->close();
+
+        if ($pendingReq) {
             return false;
         }
     }
+
+    $is_new_member = !$member_id;
 
     if (!$plan) {
         return false;
@@ -110,42 +284,21 @@ function add_subscription($form)
     $base_price     = intval($plan['price']);
     $price_paid     = intval($form['price_paid'] ?? round($base_price * $durationMonths * (1 - $discount_pct / 100)));
 
+    if ($is_new_member) {
+        return handle_new_member_signup($form, $plan_id, $duration_id, $durationMonths, $discount_pct, $price_paid);
+    }
+
     // Sync member subscriptions first (auto-expire past ones, activate eligible pending ones)
     sync_member_subscriptions($member_id);
 
-    $today = date('Y-m-d');
-
-    // Check if the member already has active or queued subscriptions (find furthest end date)
-    $checkStmt = $connGym->prepare("
-        SELECT MAX(end_date) AS furthest_end 
-        FROM subscription 
-        WHERE member_id = ? AND status IN ('active', 'pending') AND end_date >= ?
-    ");
-    $checkStmt->bind_param("is", $member_id, $today);
-    $checkStmt->execute();
-    $existingRow = $checkStmt->get_result()->fetch_assoc();
-    $checkStmt->close();
-
-    $furthestEnd = $existingRow['furthest_end'] ?? null;
-
-    if (!empty($furthestEnd)) {
-        // Queue this new subscription right after the furthest subscription finishes!
-        $start_date = date('Y-m-d', strtotime('+1 day', strtotime($furthestEnd)));
-        $end_date   = date('Y-m-d', strtotime("+$durationMonths months", strtotime($start_date)));
-        $status     = 'pending';
-    } else {
-        // No current active subscription: starts today as active
-        $start_date = $today;
-        $end_date   = date('Y-m-d', strtotime("+$durationMonths months", strtotime($today)));
-        $status     = 'active';
-    }
+    $dates = calculate_subscription_dates($member_id, $durationMonths);
 
     $stmt = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, duration_id, discount_pct, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("iiissidds", $member_id, $plan_id, $price_paid, $start_date, $end_date, $durationMonths, $duration_id, $discount_pct, $status);
+    $stmt->bind_param("iiissidds", $member_id, $plan_id, $price_paid, $dates['start_date'], $dates['end_date'], $durationMonths, $duration_id, $discount_pct, $dates['status']);
     $success = $stmt->execute();
     $stmt->close();
 
-    return $success;
+    return $success ? $dates['status'] : false;
 }
 
 // Updates existing member profile info and syncs their subscription
@@ -166,40 +319,35 @@ function update_member($data)
     $stmt->execute();
     $stmt->close();
 
+    $subscription_id = trim($data['subscription_id'] ?? '');
     $plan_name = trim($data['plan'] ?? '');
+    
     if ($id && !empty($plan_name)) {
-        $planStmt = $connGym->prepare("SELECT id, price FROM plans WHERE name = ? LIMIT 1");
-        $planStmt->bind_param("s", $plan_name);
-        $planStmt->execute();
-        $plan = $planStmt->get_result()->fetch_assoc();
-        $planStmt->close();
-
-        if ($plan) {
-            $plan_id = intval($plan['id']);
-            $durationMonths = 1;
-            $price_paid = intval($plan['price']);
-
-            $checkSub = $connGym->prepare("SELECT id FROM subscription WHERE member_id = ? ORDER BY id DESC LIMIT 1");
-            $checkSub->bind_param("i", $id);
-            $checkSub->execute();
-            $subRes = $checkSub->get_result()->fetch_assoc();
-            $checkSub->close();
-
-            if ($subRes) {
-                $subId = $subRes['id'];
-                $updateSub = $connGym->prepare("UPDATE subscription SET plan_id = ?, price_paid = ? WHERE id = ?");
-                $updateSub->bind_param("iii", $plan_id, $price_paid, $subId);
-                $updateSub->execute();
-                $updateSub->close();
-            } else {
-                $start_date = date('Y-m-d');
-                $end_date = date('Y-m-d', strtotime("+$durationMonths months"));
-                $status = 'active';
+        if ($subscription_id === 'new' || empty($subscription_id)) {
+            $durationMonths = intval($data['durationMonths'] ?? 1);
+            $price_diff = intval($data['price_diff'] ?? 0);
+            
+            $planStmt = $connGym->prepare("SELECT id, price FROM plans WHERE name = ? LIMIT 1");
+            $planStmt->bind_param("s", $plan_name);
+            $planStmt->execute();
+            $plan = $planStmt->get_result()->fetch_assoc();
+            $planStmt->close();
+            
+            if ($plan) {
+                $plan_id = intval($plan['id']);
+                $price_paid = (intval($plan['price']) * $durationMonths) + $price_diff;
+                $dates = calculate_subscription_dates($id, $durationMonths);
+                
                 $insertSub = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $insertSub->bind_param("iiissis", $id, $plan_id, $price_paid, $start_date, $end_date, $durationMonths, $status);
+                $insertSub->bind_param("iiissis", $id, $plan_id, $price_paid, $dates['start_date'], $dates['end_date'], $durationMonths, $dates['status']);
                 $insertSub->execute();
                 $insertSub->close();
             }
+        } else {
+            $sub_id = intval($subscription_id);
+            $durationMonths = intval($data['durationMonths'] ?? 1);
+            $price_diff = intval($data['price_diff'] ?? 0);
+            edit_specific_subscription($id, $sub_id, $plan_name, $durationMonths, $price_diff);
         }
     }
 
@@ -366,18 +514,8 @@ function get_member_subscription($member_id)
     }
 
     // Query furthest end date across all active and pending subscriptions
-    $today = date('Y-m-d');
-    $fStmt = $connGym->prepare("
-        SELECT MAX(end_date) AS furthest_end 
-        FROM subscription 
-        WHERE member_id = ? AND status IN ('active', 'pending') AND end_date >= ?
-    ");
-    $fStmt->bind_param("is", $member_id, $today);
-    $fStmt->execute();
-    $fRow = $fStmt->get_result()->fetch_assoc();
-    $fStmt->close();
-
-    $sub['furthest_end_date'] = $fRow['furthest_end'] ?? $sub['end_date'];
+    $furthestEnd = get_furthest_end_date($member_id);
+    $sub['furthest_end_date'] = $furthestEnd ?? $sub['end_date'];
 
     return $sub;
 }
@@ -470,7 +608,7 @@ function insert_member_request($member_id, $request_type, $amount = null, $new_v
     if (!$connGym)
         return false;
 
-    $member_id    = intval($member_id);
+    $member_id    = $member_id !== null ? intval($member_id) : null;
     $request_type = trim($request_type);
     $new_value    = $new_value !== null ? trim($new_value) : null;
     $reason       = trim($reason);
