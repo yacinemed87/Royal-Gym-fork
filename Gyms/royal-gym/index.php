@@ -6,11 +6,12 @@ require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/indexBack.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/membershipBack.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/gym_data.php";
 
 $login = isset($_SESSION['user_id']);
 $current_page = "home";
 $gym = get_gym_info();
-$durations = get_plan_durations();
+$durations = get_durations();
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +27,7 @@ $durations = get_plan_durations();
 
 <body>
 	<?php
-		include __DIR__ . "/client/includes/header.php"
+	include __DIR__ . "/client/includes/header.php"
 	?>
 	<main>
 		<section class="hero">
@@ -46,21 +47,21 @@ $durations = get_plan_durations();
 			<h2>Membership Plans</h2>
 
 			<?php if (!empty($durations)): ?>
-			<div class="duration-switcher" id="duration-switcher">
-				<?php foreach ($durations as $dur): ?>
-				<button
-					type="button"
-					class="duration-pill<?= intval($dur['months']) === 1 ? ' active' : ''; ?>"
-					data-duration-id="<?= intval($dur['id']); ?>"
-					data-months="<?= intval($dur['months']); ?>"
-					data-discount="<?= floatval($dur['discount_pct']); ?>">
-					<?= htmlspecialchars($dur['label']); ?>
-					<?php if ($dur['discount_pct'] > 0): ?>
-					<span class="pill-badge">-<?= intval($dur['discount_pct']); ?>%</span>
-					<?php endif; ?>
-				</button>
-				<?php endforeach; ?>
-			</div>
+				<div class="duration-switcher" id="duration-switcher">
+					<?php foreach ($durations as $dur): ?>
+						<button
+							type="button"
+							class="duration-pill<?= intval($dur['months']) === 1 ? ' active' : ''; ?>"
+							data-duration-id="<?= intval($dur['id']); ?>"
+							data-months="<?= intval($dur['months']); ?>"
+							data-discount="<?= floatval($dur['discount_pct']); ?>">
+							<?= htmlspecialchars($dur['label']); ?>
+							<?php if ($dur['discount_pct'] > 0): ?>
+								<span class="pill-badge">-<?= intval($dur['discount_pct']); ?>%</span>
+							<?php endif; ?>
+						</button>
+					<?php endforeach; ?>
+				</div>
 			<?php endif; ?>
 
 			<div class="plans-grid" id="plans-grid">
@@ -72,14 +73,14 @@ $durations = get_plan_durations();
 		<section class="opening-hours">
 			<h2>Opening Hours</h2>
 			<?php
-				write_opening_hours_table();
+			write_opening_hours_table();
 			?>
 		</section>
 	</main>
 	<?php
-		include __DIR__ . "/client/includes/footer.php"
+	include __DIR__ . "/client/includes/footer.php"
 	?>
-	<script src="./js/index-plans.js?v=<?= filemtime(__DIR__ . '/js/index-plans.js'); ?>"></script>
+	<script src="<?= BASE_URL ?>GymsManager/frontend/js/index-plans.js?v=<?= filemtime(PROJECT_ROOT . '/GymsManager/frontend/js/index-plans.js'); ?>"></script>
 </body>
 
 </html>

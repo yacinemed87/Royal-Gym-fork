@@ -2,6 +2,7 @@
 require_once __DIR__ . "/config.php";
 require_once __DIR__ . "/gyms.php";
 require_once __DIR__ . "/handling_members.php";
+require_once __DIR__ . "/gym_data.php";
 
 function write_admin_sidebar($active_page = '')
 {
@@ -34,12 +35,13 @@ function write_admin_sidebar($active_page = '')
         echo "        <li><a href='{$item['url']}' {$active_class}>{$item['label']}</a></li>\n";
     }
 
-    echo "        <div class='nav-divider'></div>
-        <li><a href='../index.php'>Return to Home</a></li>
-        <li><a href='../client/logout.php'>Logout</a></li>
-    </ul>
-</aside>
-";
+    echo "
+            <div class='nav-divider'></div>
+            <li><a href='../index.php'>Return to Home</a></li>
+            <li><a href='../client/logout.php'>Logout</a></li>
+        </ul>
+        </aside>
+    ";
 }
 
 function write_members_table()
@@ -65,8 +67,12 @@ function write_members_table()
         $id = $row['id'];
         if (!isset($members[$id])) {
             $members[$id] = [
-                'id' => $id, 'name' => $row['name'], 'gender' => $row['gender'],
-                'email' => $row['email'], 'phone' => $row['phone'], 'joinDate' => $row['joinDate'],
+                'id' => $id,
+                'name' => $row['name'],
+                'gender' => $row['gender'],
+                'email' => $row['email'],
+                'phone' => $row['phone'],
+                'joinDate' => $row['joinDate'],
                 'subs' => []
             ];
         }
@@ -90,7 +96,7 @@ function write_members_table()
         $gender = htmlspecialchars($m['gender']);
         $joinDate = htmlspecialchars($m['joinDate']);
         $subsJson = htmlspecialchars(json_encode($m['subs']), ENT_QUOTES, 'UTF-8');
-        
+
         $planBadges = '';
         $planNames = [];
         foreach ($m['subs'] as $sub) {
@@ -131,17 +137,168 @@ function write_members_table()
 
 function write_plan_options()
 {
+    $plans = get_plans();
+
+    foreach ($plans as $row) {
+        $name = htmlspecialchars($row['name']);
+        echo "<option value='{$name}'>{$name}</option>\n";
+    }
+}
+
+function write_plans_table()
+{
+    $plansList = get_plans();
+
+    $thead = "
+			<table>
+			<thead>
+				<tr>
+					<th>Plan Name</th>
+					<th>Price</th>
+					<th>Features</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody id='plans-tbody'>
+	";
+
+    echo $thead;
+
+    foreach ($plansList as $row) {
+        echo "
+			<tr>
+				<td>{$row['name']}</td>
+				<td>{$row['price']}DA</td>
+				<td>{$row['features']}</td>
+				<td>
+					<button class='btn btn-edit' onclick='openEditModal({$row['id']})'>Edit</button>
+					<button class='btn btn-delete' onclick='openDeleteModal({$row['id']})'>Delete</button>
+				</td>
+			</tr>
+			";
+    }
+
+    echo "
+	</body>
+	</table>
+	";
+}
+
+function write_durations_table()
+{
+    $durationsList = get_durations();
+
+    $thead = "
+			<table>
+			<thead>
+				<tr>
+					<th>Duration</th>
+					<th>Discount</th>
+					<th>Actions</th>
+				</tr>
+			</thead>
+			<tbody id='plans-tbody'>
+	";
+
+    echo $thead;
+
+    foreach ($durationsList as $row) {
+        echo "
+		<tr>
+			<td>{$row['label']}</td>
+			<td>{$row['discount_pct']}DA</td>
+			<td>
+				<button class='btn btn-edit' onclick='openEditModal({$row['id']})'>Edit</button>
+				<button class='btn btn-delete' onclick='openDeleteModal({$row['id']})'>Delete</button>
+			</td>
+		</tr>
+	";
+    }
+
+    echo "
+	</body>
+	</table
+	";
+}
+
+function write_requests_table()
+{
     global $connGym;
     if (!$connGym)
         return;
 
-    $result = $connGym->query("SELECT id, name FROM plans ORDER BY id ASC");
+    $sql = "SELECT r.id, r.request_type, r.new_value, r.amount, r.created_at, m.name AS member_name 
+            FROM requests r 
+            LEFT JOIN members m ON r.member_id = m.id 
+            WHERE r.status = 'pending' 
+            ORDER BY r.id ASC";
+
+    $result = $connGym->query($sql);
     if (!$result)
         return;
 
     while ($row = $result->fetch_assoc()) {
-        $name = htmlspecialchars($row['name']);
-        echo "<option value='{$name}'>{$name}</option>\n";
+        $id = $row['id'];
+        $memberName = htmlspecialchars($row['member_name'] ?? '');
+        $data = json_decode($row['new_value'], true); // Decode JSON early
+
+        if (empty($memberName) && isset($data['form']['name'])) {
+            $memberName = htmlspecialchars($data['form']['name']) . ' (New)';
+        }
+        $type = htmlspecialchars($row['request_type']);
+        $date = date('d M Y - H:i', strtotime($row['created_at']));
+
+        $details = '';
+        if ($type === 'email_change') {
+            $details = "Requested new email: <strong>" . htmlspecialchars($row['new_value']) . "</strong>";
+        } elseif ($type === 'membership') {
+            $plan_id = $data['plan_id'] ?? 0;
+            $planInfo = get_plan_by_id($plan_id);
+            $planName = $planInfo ? htmlspecialchars($planInfo['name']) : 'Unknown Plan';
+            $durationMonths = $data['durationMonths'] ?? '';
+            $email = $data['form']['email'] ?? '';
+            $phone = $data['form']['phone'] ?? '';
+            $gender = $data['form']['gender'] ?? '';
+
+            $detailsList = [];
+            $detailsList[] = "Requested Plan: <strong>{$planName}</strong>";
+            if ($durationMonths)
+                $detailsList[] = "Duration: <strong>{$durationMonths} Month(s)</strong>";
+            if ($email)
+                $detailsList[] = "Email: " . htmlspecialchars($email);
+            if ($phone)
+                $detailsList[] = "Phone: " . htmlspecialchars($phone);
+            if ($gender)
+                $detailsList[] = "Gender: " . htmlspecialchars($gender);
+            $detailsList[] = "Paid: <strong>" . htmlspecialchars($row['amount']) . " DA</strong>";
+
+            $details = implode("<br>", $detailsList);
+        } else {
+            $details = htmlspecialchars($row['new_value']);
+        }
+
+        echo "
+        <tr>
+            <td>{$id}</td>
+            <td><strong>{$memberName}</strong></td>
+            <td><span class='badge'>{$type}</span></td>
+            <td>{$details}</td>
+            <td>{$date}</td>
+            <td>
+                <form method='POST' action='requests.php' style='display:inline;'>
+                    <input type='hidden' name='action' value='accept'>
+                    <input type='hidden' name='request_id' value='{$id}'>
+                    <input type='hidden' name='request_type' value='{$type}'>
+                    <button type='submit' class='btn btn-edit'>Accept</button>
+                </form>
+                <form method='POST' action='requests.php' style='display:inline;' onsubmit='return confirm(\"Are you sure you want to reject this request?\");'>
+                    <input type='hidden' name='action' value='reject'>
+                    <input type='hidden' name='request_id' value='{$id}'>
+                    <button type='submit' class='btn btn-delete'>Reject</button>
+                </form>
+            </td>
+        </tr>
+        ";
     }
 }
 
@@ -328,87 +485,5 @@ function reject_request($request_id)
     } catch (Exception $e) {
         $connGym->rollback();
         return false;
-    }
-}
-
-
-function write_requests_table()
-{
-    global $connGym;
-    if (!$connGym)
-        return;
-
-    $sql = "SELECT r.id, r.request_type, r.new_value, r.amount, r.created_at, m.name AS member_name 
-            FROM requests r 
-            LEFT JOIN members m ON r.member_id = m.id 
-            WHERE r.status = 'pending' 
-            ORDER BY r.id ASC";
-
-    $result = $connGym->query($sql);
-    if (!$result)
-        return;
-
-    while ($row = $result->fetch_assoc()) {
-        $id = $row['id'];
-        $memberName = htmlspecialchars($row['member_name'] ?? '');
-        $data = json_decode($row['new_value'], true); // Decode JSON early
-
-        if (empty($memberName) && isset($data['form']['name'])) {
-            $memberName = htmlspecialchars($data['form']['name']) . ' (New)';
-        }
-        $type = htmlspecialchars($row['request_type']);
-        $date = date('d M Y - H:i', strtotime($row['created_at']));
-
-        $details = '';
-        if ($type === 'email_change') {
-            $details = "Requested new email: <strong>" . htmlspecialchars($row['new_value']) . "</strong>";
-        } elseif ($type === 'membership') {
-            $plan_id = $data['plan_id'] ?? 0;
-            $planInfo = get_plan_info($plan_id);
-            $planName = $planInfo ? htmlspecialchars($planInfo['name']) : 'Unknown Plan';
-            $durationMonths = $data['durationMonths'] ?? '';
-            $email = $data['form']['email'] ?? '';
-            $phone = $data['form']['phone'] ?? '';
-            $gender = $data['form']['gender'] ?? '';
-
-            $detailsList = [];
-            $detailsList[] = "Requested Plan: <strong>{$planName}</strong>";
-            if ($durationMonths)
-                $detailsList[] = "Duration: <strong>{$durationMonths} Month(s)</strong>";
-            if ($email)
-                $detailsList[] = "Email: " . htmlspecialchars($email);
-            if ($phone)
-                $detailsList[] = "Phone: " . htmlspecialchars($phone);
-            if ($gender)
-                $detailsList[] = "Gender: " . htmlspecialchars($gender);
-            $detailsList[] = "Paid: <strong>" . htmlspecialchars($row['amount']) . " DA</strong>";
-
-            $details = implode("<br>", $detailsList);
-        } else {
-            $details = htmlspecialchars($row['new_value']);
-        }
-
-        echo "
-        <tr>
-            <td>{$id}</td>
-            <td><strong>{$memberName}</strong></td>
-            <td><span class='badge'>{$type}</span></td>
-            <td>{$details}</td>
-            <td>{$date}</td>
-            <td>
-                <form method='POST' action='requests.php' style='display:inline;'>
-                    <input type='hidden' name='action' value='accept'>
-                    <input type='hidden' name='request_id' value='{$id}'>
-                    <input type='hidden' name='request_type' value='{$type}'>
-                    <button type='submit' class='btn btn-edit'>Accept</button>
-                </form>
-                <form method='POST' action='requests.php' style='display:inline;' onsubmit='return confirm(\"Are you sure you want to reject this request?\");'>
-                    <input type='hidden' name='action' value='reject'>
-                    <input type='hidden' name='request_id' value='{$id}'>
-                    <button type='submit' class='btn btn-delete'>Reject</button>
-                </form>
-            </td>
-        </tr>
-        ";
     }
 }

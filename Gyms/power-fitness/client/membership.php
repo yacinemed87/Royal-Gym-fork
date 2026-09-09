@@ -5,13 +5,14 @@ require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/handling_members.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/membershipBack.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/gym_data.php";
 
 $current_page = 'membership';
 $gym = get_gym_info();
 $success_message = $_SESSION['membership_success'] ?? '';
 $error_message = $_SESSION['membership_error'] ?? '';
 unset($_SESSION['membership_success'], $_SESSION['membership_error']);
-$durations = get_plan_durations();
+$durations = get_durations();
 
 $isLoggedIn = !empty($_SESSION['user_id']);
 $loggedMember = $isLoggedIn ? get_member_profile($_SESSION['user_id']) : null;
@@ -53,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
 	<?php
 	include __DIR__ . "/includes/header.php"
-		?>
+	?>
 
 	<section class="register" aria-labelledby="register-heading">
 		<div>
@@ -210,9 +211,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 	<?php
 	include __DIR__ . "/includes/footer.php"
-		?>
+	?>
 
-	<script src="../js/membership.js?v=<?= filemtime(__DIR__ . '/../js/membership.js'); ?>"></script>
+	<script src="<?= BASE_URL ?>GymsManager/frontend/js/membership.js?v=<?= filemtime(PROJECT_ROOT . '/GymsManager/frontend/js/membership.js'); ?>"></script>
 </body>
 
 </html>

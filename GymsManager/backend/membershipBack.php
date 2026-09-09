@@ -13,7 +13,7 @@ function write_membership_plan_cards()
     if (!$result)
         return;
 
-    $durations = get_plan_durations();
+    $durations = get_durations();
     $max_discount = 0;
     foreach ($durations as $d) {
         if (floatval($d['discount_pct']) > $max_discount)
@@ -104,7 +104,7 @@ function write_membership_plan_radios()
 
 function write_membership_duration_radios()
 {
-    $durations = get_plan_durations();
+    $durations = get_durations();
     if (empty($durations))
         return;
 

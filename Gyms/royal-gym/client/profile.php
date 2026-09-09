@@ -4,6 +4,7 @@ require_once __DIR__ . "/../config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/require_login.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/handling_members.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/gym_data.php";
 
 $gym = get_gym_info();
 $user_id = $_SESSION['user_id'] ?? 0;
@@ -334,34 +335,35 @@ $initials = substr($initials, 0, 2);
 	?>
 
 	<script>
-	document.addEventListener('DOMContentLoaded', () => {
-		const modal = document.getElementById('editModal');
-		const openBtn = document.getElementById('openEditModal');
-		const closeBtn = document.getElementById('closeEditModal');
-		const cancelBtn = document.getElementById('cancelEditModal');
+		document.addEventListener('DOMContentLoaded', () => {
+			const modal = document.getElementById('editModal');
+			const openBtn = document.getElementById('openEditModal');
+			const closeBtn = document.getElementById('closeEditModal');
+			const cancelBtn = document.getElementById('cancelEditModal');
 
-		function openModal() {
-			if (modal) modal.classList.remove('hidden');
-		}
-		function closeModal() {
-			if (modal) modal.classList.add('hidden');
-		}
-
-		if (openBtn) openBtn.addEventListener('click', openModal);
-		if (closeBtn) closeBtn.addEventListener('click', closeModal);
-		if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
-
-		if (modal) {
-			modal.addEventListener('click', (e) => {
-				if (e.target === modal) closeModal();
-			});
-		}
-		document.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
-				closeModal();
+			function openModal() {
+				if (modal) modal.classList.remove('hidden');
 			}
+
+			function closeModal() {
+				if (modal) modal.classList.add('hidden');
+			}
+
+			if (openBtn) openBtn.addEventListener('click', openModal);
+			if (closeBtn) closeBtn.addEventListener('click', closeModal);
+			if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+			if (modal) {
+				modal.addEventListener('click', (e) => {
+					if (e.target === modal) closeModal();
+				});
+			}
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+					closeModal();
+				}
+			});
 		});
-	});
 	</script>
 </body>
 

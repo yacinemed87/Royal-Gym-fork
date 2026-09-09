@@ -4,6 +4,7 @@ require_once __DIR__ . "/../config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/require_login.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/handling_members.php";
+require_once PROJECT_ROOT . "/GymsManager/backend/gym_data.php";
 
 $gym = get_gym_info();
 $user_id = $_SESSION['user_id'] ?? 0;
@@ -24,7 +25,7 @@ if (!can_change_plan($sub)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_plan_id = intval($_POST['new_plan_id'] ?? 0);
     if ($new_plan_id && $new_plan_id !== intval($sub['plan_id'])) {
-        $new_plan = get_plan_info($new_plan_id);
+        $new_plan = get_plan_by_id($new_plan_id);
         if ($new_plan) {
             $cost = calculate_change_cost($sub, $new_plan);
             $ok = change_plan($sub['id'], $new_plan_id, $cost['amount'], $cost['new_end_date']);
@@ -76,42 +77,42 @@ while ($row = $all_plans_result->fetch_assoc()) {
         </section>
 
         <?php if ($error): ?>
-        <div class="cp-error"><?= htmlspecialchars($error); ?></div>
+            <div class="cp-error"><?= htmlspecialchars($error); ?></div>
         <?php endif; ?>
 
         <form method="POST" class="cp-grid">
             <?php foreach ($plans as $plan): ?>
-            <?php
+                <?php
                 $cost = $plan['_cost'];
                 $amount_display = number_format(abs($cost['amount'])) . ' DA';
                 $is_refund = $cost['is_refund'];
                 $months_remaining = $cost['months_remaining'];
-            ?>
-            <div class="cp-card">
-                <h3 class="cp-plan-name"><?= htmlspecialchars($plan['name']); ?></h3>
-                <p class="cp-base-price"><?= number_format($plan['price']); ?> DA<span>/month</span></p>
+                ?>
+                <div class="cp-card">
+                    <h3 class="cp-plan-name"><?= htmlspecialchars($plan['name']); ?></h3>
+                    <p class="cp-base-price"><?= number_format($plan['price']); ?> DA<span>/month</span></p>
 
-                <div class="cp-breakdown">
-                    <p>New plan total: <?= number_format(round($plan['price'] * intval($sub['durationMonths']) * (1 - floatval($sub['discount_pct']) / 100))); ?> DA</p>
-                    <p>Your refund: −<?= number_format(round((intval($sub['price_paid']) / intval($sub['durationMonths'])) * $months_remaining)); ?> DA</p>
-                </div>
+                    <div class="cp-breakdown">
+                        <p>New plan total: <?= number_format(round($plan['price'] * intval($sub['durationMonths']) * (1 - floatval($sub['discount_pct']) / 100))); ?> DA</p>
+                        <p>Your refund: −<?= number_format(round((intval($sub['price_paid']) / intval($sub['durationMonths'])) * $months_remaining)); ?> DA</p>
+                    </div>
 
-                <div class="cp-total <?= $is_refund ? 'is-refund' : 'is-charge'; ?>">
+                    <div class="cp-total <?= $is_refund ? 'is-refund' : 'is-charge'; ?>">
+                        <?php if ($is_refund): ?>
+                            Refund: <?= $amount_display; ?>
+                        <?php else: ?>
+                            To pay: <?= $amount_display; ?>
+                        <?php endif; ?>
+                    </div>
+
                     <?php if ($is_refund): ?>
-                    Refund: <?= $amount_display; ?>
-                    <?php else: ?>
-                    To pay: <?= $amount_display; ?>
+                        <p class="cp-refund-note">The gym will contact you to process this refund manually.</p>
                     <?php endif; ?>
+
+                    <button type="submit" name="new_plan_id" value="<?= intval($plan['id']); ?>" class="cp-btn">
+                        Switch to <?= htmlspecialchars($plan['name']); ?>
+                    </button>
                 </div>
-
-                <?php if ($is_refund): ?>
-                <p class="cp-refund-note">The gym will contact you to process this refund manually.</p>
-                <?php endif; ?>
-
-                <button type="submit" name="new_plan_id" value="<?= intval($plan['id']); ?>" class="cp-btn">
-                    Switch to <?= htmlspecialchars($plan['name']); ?>
-                </button>
-            </div>
             <?php endforeach; ?>
         </form>
 
@@ -122,7 +123,7 @@ while ($row = $all_plans_result->fetch_assoc()) {
 
     <?php include __DIR__ . "/includes/footer.php"; ?>
     <script>
-        document.querySelector('.menu-toggle')?.addEventListener('click', function () {
+        document.querySelector('.menu-toggle')?.addEventListener('click', function() {
             document.querySelector('header nav').classList.toggle('open');
         });
     </script>
