@@ -3,8 +3,5 @@ structure
 .vscode
 Royal-Gym.code-workspace
 dont need
-vendor
-composer.lock
 cloudflared.exe
 standard field names
-composer.json
