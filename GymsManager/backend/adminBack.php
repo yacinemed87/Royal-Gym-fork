@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/db_connect.php";
 require_once __DIR__ . "/gyms.php";
 require_once __DIR__ . "/handling_members.php";
 require_once __DIR__ . "/gym_data.php";

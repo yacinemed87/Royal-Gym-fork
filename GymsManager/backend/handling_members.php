@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . "/config.php";
 require_once __DIR__ . "/email_utils.php";
+require_once __DIR__ . "/db_connect.php";
+require_once __DIR__ . "/gym_data.php";
 
 // Creates a new member record with a default hashed password and returns the new ID
 function add_member($member)
@@ -22,18 +24,6 @@ function add_member($member)
     $stmt->close();
 
     return $new_id;
-}
-
-// Finds a plan ID by either its name or existing ID
-function get_plan_id($plan)
-{
-    global $connGym;
-    $stmt = $connGym->prepare("SELECT id FROM plans WHERE name = ? OR id = ?");
-    $stmt->bind_param("ss", $plan, $plan);
-    $stmt->execute();
-    $result = $stmt->get_result()->fetch_assoc();
-    $stmt->close();
-    return $result ? $result['id'] : null;
 }
 
 function find_member_by_contact($email, $phone)
@@ -180,11 +170,7 @@ function recalculate_subscription_queue($member_id)
 function edit_specific_subscription($member_id, $sub_id, $plan_name, $durationMonths, $price_diff)
 {
     global $connGym;
-    $planStmt = $connGym->prepare("SELECT id FROM plans WHERE name = ? LIMIT 1");
-    $planStmt->bind_param("s", $plan_name);
-    $planStmt->execute();
-    $plan = $planStmt->get_result()->fetch_assoc();
-    $planStmt->close();
+    $plan = get_plan_by_name($plan_name);
 
     if (!$plan)
         return false;
@@ -233,8 +219,7 @@ function add_subscription($form)
 
     $email = trim($form['email'] ?? '');
     $phone = trim($form['phone'] ?? '');
-    $plan_id = get_plan_id(trim($form['plan'] ?? ''));
-    $plan = get_plan_by_id($plan_id);
+    $plan = get_plan_by_name(trim($form['plan'] ?? ''));
     $member_id = !empty($_SESSION['user_id']) ? intval($_SESSION['user_id']) : null;
 
     if (!$member_id) {
@@ -264,11 +249,7 @@ function add_subscription($form)
     $duration_row = null;
 
     if ($duration_id) {
-        $dStmt = $connGym->prepare("SELECT months, discount_pct FROM plan_durations WHERE id = ? LIMIT 1");
-        $dStmt->bind_param("i", $duration_id);
-        $dStmt->execute();
-        $duration_row = $dStmt->get_result()->fetch_assoc();
-        $dStmt->close();
+        $duration_row = get_duration_by_id($duration_id);
     }
 
     $durationMonths = intval($duration_row['months'] ?? 1);
@@ -317,22 +298,26 @@ function update_member($data)
 
     if ($id && !empty($plan_name)) {
         if ($subscription_id === 'new' || empty($subscription_id)) {
-            $durationMonths = intval($data['durationMonths'] ?? 1);
+            $duration_id = intval($data['duration_id'] ?? 0);
             $price_diff = intval($data['price_diff'] ?? 0);
 
-            $planStmt = $connGym->prepare("SELECT id, price FROM plans WHERE name = ? LIMIT 1");
-            $planStmt->bind_param("s", $plan_name);
-            $planStmt->execute();
-            $plan = $planStmt->get_result()->fetch_assoc();
-            $planStmt->close();
+            $plan = get_plan_by_name($plan_name);
+
+            $duration_row = null;
+            if ($duration_id) {
+                $duration_row = get_duration_by_id($duration_id);
+            }
+
+            $durationMonths = intval($duration_row['months'] ?? ($data['durationMonths'] ?? 1));
+            $discount_pct = floatval($duration_row['discount_pct'] ?? 0);
 
             if ($plan) {
                 $plan_id = intval($plan['id']);
-                $price_paid = (intval($plan['price']) * $durationMonths) + $price_diff;
+                $price_paid = intval(round(intval($plan['price']) * $durationMonths * (1 - $discount_pct / 100))) + $price_diff;
                 $dates = calculate_subscription_dates($id, $durationMonths);
 
-                $insertSub = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $insertSub->bind_param("iiissis", $id, $plan_id, $price_paid, $dates['start_date'], $dates['end_date'], $durationMonths, $dates['status']);
+                $insertSub = $connGym->prepare("INSERT INTO subscription (member_id, plan_id, price_paid, start_date, end_date, durationMonths, duration_id, discount_pct, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $insertSub->bind_param("iiissidds", $id, $plan_id, $price_paid, $dates['start_date'], $dates['end_date'], $durationMonths, $duration_id, $discount_pct, $dates['status']);
                 $insertSub->execute();
                 $insertSub->close();
             }
@@ -447,14 +432,15 @@ function calculate_change_cost($sub, $new_plan)
     $today = strtotime(date('Y-m-d'));
     $days_since = (int) floor(($today - $start) / 86400);
     $month_number = (int) floor($days_since / 30);
-    $months_remaining = $original_months - $month_number;
+    $months_remaining = max(0, $original_months - $month_number);
 
-    if ($months_remaining <= 0)
-        $months_remaining = 0;
+    // What you already paid, per month, for the OLD plan (discount already baked into price_paid)
+    $old_price_per_month = $original_months > 0 ? ($price_paid / $original_months) : 0;
 
-    $new_plan_cost = round($new_base_price * $original_months * (1 - $discount_pct / 100));
-    $refund_amount = $original_months > 0 ? round(($price_paid / $original_months) * $months_remaining) : 0;
-    $amount = $new_plan_cost - $refund_amount;
+    // What the NEW plan costs per month, at the SAME discount tier (same duration commitment)
+    $new_price_per_month = $new_base_price * (1 - $discount_pct / 100);
+
+    $amount = round(($new_price_per_month - $old_price_per_month) * $months_remaining);
 
     return [
         'amount' => $amount,

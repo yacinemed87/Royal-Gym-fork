@@ -4,6 +4,8 @@ use PHPMailer\PHPMailer\Exception;
 
 // The autoloader is in the root directory
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/db_connect.php";
 
 function send_gym_email($recipient_email, $recipient_name, $subject, $heading, $message_html) {
     global $connGym;

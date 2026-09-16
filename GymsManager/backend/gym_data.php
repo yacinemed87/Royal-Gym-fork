@@ -1,15 +1,19 @@
 <?php
 require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/db_connect.php";
+require_once __DIR__ . "/handling_members.php";
 
 // ── Plans ──────────────────────────────────────────────────────────────────────
 
 function get_plans()
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $result = $connGym->query("SELECT * FROM plans ORDER BY price ASC");
-    if (!$result) return [];
+    if (!$result)
+        return [];
 
     $rows = [];
     while ($row = $result->fetch_assoc()) {
@@ -21,7 +25,8 @@ function get_plans()
 function get_plan_by_id($id)
 {
     global $connGym;
-    if (!$connGym) return null;
+    if (!$connGym)
+        return null;
 
     $stmt = $connGym->prepare("SELECT * FROM plans WHERE id = ? LIMIT 1");
     $stmt->bind_param("i", $id);
@@ -31,15 +36,32 @@ function get_plan_by_id($id)
     return $row;
 }
 
+function get_plan_by_name($name)
+{
+    global $connGym;
+    if (!$connGym)
+        return null;
+
+    $stmt = $connGym->prepare("SELECT id, price FROM plans WHERE name = ? LIMIT 1");
+    $stmt->bind_param("s", $name);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+    return $row;
+}
+
+
 // ── Plan Durations ─────────────────────────────────────────────────────────────
 
 function get_durations()
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $result = $connGym->query("SELECT * FROM plan_durations ORDER BY months ASC");
-    if (!$result) return [];
+    if (!$result)
+        return [];
 
     $rows = [];
     while ($row = $result->fetch_assoc()) {
@@ -51,7 +73,8 @@ function get_durations()
 function get_duration_by_id($id)
 {
     global $connGym;
-    if (!$connGym) return null;
+    if (!$connGym)
+        return null;
 
     $stmt = $connGym->prepare("SELECT * FROM plan_durations WHERE id = ? LIMIT 1");
     $stmt->bind_param("i", $id);
@@ -66,10 +89,12 @@ function get_duration_by_id($id)
 function get_all_members()
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $result = $connGym->query("SELECT * FROM members ORDER BY id DESC");
-    if (!$result) return [];
+    if (!$result)
+        return [];
 
     $rows = [];
     while ($row = $result->fetch_assoc()) {
@@ -108,10 +133,12 @@ function get_member_profile($user_id)
 function get_pending_requests()
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $result = $connGym->query("SELECT * FROM requests WHERE status = 'pending' ORDER BY id DESC");
-    if (!$result) return [];
+    if (!$result)
+        return [];
 
     $rows = [];
     while ($row = $result->fetch_assoc()) {
@@ -123,10 +150,12 @@ function get_pending_requests()
 function get_all_requests()
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $result = $connGym->query("SELECT * FROM requests ORDER BY id DESC");
-    if (!$result) return [];
+    if (!$result)
+        return [];
 
     $rows = [];
     while ($row = $result->fetch_assoc()) {
@@ -140,7 +169,8 @@ function get_all_requests()
 function get_subscriptions_by_member($member_id)
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $stmt = $connGym->prepare("
         SELECT s.*, p.name AS plan_name, p.price AS plan_price
@@ -164,7 +194,8 @@ function get_subscriptions_by_member($member_id)
 function get_active_subscriptions()
 {
     global $connGym;
-    if (!$connGym) return [];
+    if (!$connGym)
+        return [];
 
     $result = $connGym->query("
         SELECT s.*, p.name AS plan_name, m.name AS member_name
@@ -174,7 +205,8 @@ function get_active_subscriptions()
         WHERE s.status = 'active'
         ORDER BY s.end_date ASC
     ");
-    if (!$result) return [];
+    if (!$result)
+        return [];
 
     $rows = [];
     while ($row = $result->fetch_assoc()) {
@@ -253,4 +285,28 @@ function get_member_subscription($member_id)
     $sub['furthest_end_date'] = $furthestEnd ?? $sub['end_date'];
 
     return $sub;
+}
+
+// Calculates total days remaining including any pending subscriptions
+function calculate_subscription_days_left($sub)
+{
+    if (empty($sub)) {
+        return 0;
+    }
+
+    $todayTs = strtotime(date('Y-m-d'));
+    
+    $endDate = $sub['end_date'] ?? null;
+    $hasPending = !empty($sub['pending_sub']);
+    $pending = $sub['pending_sub'] ?? null;
+    
+    // get_member_subscription() already attaches furthest_end_date
+    $furthestEndDate = $sub['furthest_end_date'] ?? ($hasPending ? $pending['end_date'] : $endDate);
+    
+    if (!$furthestEndDate) {
+        return 0;
+    }
+    
+    $furthestEndTs = strtotime($furthestEndDate);
+    return (int) max(0, ceil(($furthestEndTs - $todayTs) / 86400));
 }

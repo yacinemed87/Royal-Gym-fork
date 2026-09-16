@@ -5,7 +5,6 @@ require_once PROJECT_ROOT . "/GymsManager/backend/config.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/db_connect.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gyms.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/indexBack.php";
-require_once PROJECT_ROOT . "/GymsManager/backend/membershipBack.php";
 require_once PROJECT_ROOT . "/GymsManager/backend/gym_data.php";
 
 $login = isset($_SESSION['user_id']);
@@ -28,7 +27,7 @@ $durations = get_durations();
 <body>
 	<?php
 	include __DIR__ . "/client/includes/header.php"
-	?>
+		?>
 	<main>
 		<section class="hero">
 			<h1><?= htmlspecialchars($gym["name"] ?? "Gym"); ?></h1>
@@ -49,11 +48,8 @@ $durations = get_durations();
 			<?php if (!empty($durations)): ?>
 				<div class="duration-switcher" id="duration-switcher">
 					<?php foreach ($durations as $dur): ?>
-						<button
-							type="button"
-							class="duration-pill<?= intval($dur['months']) === 1 ? ' active' : ''; ?>"
-							data-duration-id="<?= intval($dur['id']); ?>"
-							data-months="<?= intval($dur['months']); ?>"
+						<button type="button" class="duration-pill<?= intval($dur['months']) === 1 ? ' active' : ''; ?>"
+							data-duration-id="<?= intval($dur['id']); ?>" data-months="<?= intval($dur['months']); ?>"
 							data-discount="<?= floatval($dur['discount_pct']); ?>">
 							<?= htmlspecialchars($dur['label']); ?>
 							<?php if ($dur['discount_pct'] > 0): ?>
@@ -79,8 +75,9 @@ $durations = get_durations();
 	</main>
 	<?php
 	include __DIR__ . "/client/includes/footer.php"
-	?>
-	<script src="<?= BASE_URL ?>GymsManager/frontend/js/index-plans.js?v=<?= filemtime(PROJECT_ROOT . '/GymsManager/frontend/js/index-plans.js'); ?>"></script>
+		?>
+	<script
+		src="<?= BASE_URL ?>GymsManager/frontend/js/index-plans.js?v=<?= filemtime(PROJECT_ROOT . '/GymsManager/frontend/js/index-plans.js'); ?>"></script>
 </body>
 
 </html>

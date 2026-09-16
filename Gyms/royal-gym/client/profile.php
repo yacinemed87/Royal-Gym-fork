@@ -171,7 +171,7 @@ $initials = substr($initials, 0, 2);
 				// Furthest end date: counts BOTH active and pending subscriptions!
 				$furthestEndDate = $sub['furthest_end_date'] ?? ($hasPending ? $pending['end_date'] : $endDate);
 				$furthestEndTs = strtotime($furthestEndDate);
-				$totalDaysRemaining = (int) max(0, ceil(($furthestEndTs - $todayTs) / 86400));
+				$totalDaysRemaining = calculate_subscription_days_left($sub);
 
 				// Months + extra days breakdown
 				$monthsRemaining = (int) floor($totalDaysRemaining / 30);

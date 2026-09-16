@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/db_connect.php";
 
 function connect_gym($db_name)
 {

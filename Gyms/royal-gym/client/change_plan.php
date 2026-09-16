@@ -93,8 +93,12 @@ while ($row = $all_plans_result->fetch_assoc()) {
                     <p class="cp-base-price"><?= number_format($plan['price']); ?> DA<span>/month</span></p>
 
                     <div class="cp-breakdown">
-                        <p>New plan total: <?= number_format(round($plan['price'] * intval($sub['durationMonths']) * (1 - floatval($sub['discount_pct']) / 100))); ?> DA</p>
-                        <p>Your refund: −<?= number_format(round((intval($sub['price_paid']) / intval($sub['durationMonths'])) * $months_remaining)); ?> DA</p>
+                        <p>New plan (<?= $months_remaining; ?> mo remaining):
+                            <?= number_format(round($plan['price'] * $months_remaining * (1 - floatval($sub['discount_pct']) / 100))); ?>
+                            DA</p>
+                        <p>Credit from current plan:
+                            <?= number_format(round((intval($sub['price_paid']) / intval($sub['durationMonths'])) * $months_remaining)); ?>
+                            DA</p>
                     </div>
 
                     <div class="cp-total <?= $is_refund ? 'is-refund' : 'is-charge'; ?>">
@@ -117,13 +121,14 @@ while ($row = $all_plans_result->fetch_assoc()) {
         </form>
 
         <div style="text-align:center; margin-top: 2rem;">
-            <a href="<?= GYM_BASE_URL; ?>/client/profile.php" style="color: var(--accent); font-size: 0.9rem;">← Back to Profile</a>
+            <a href="<?= GYM_BASE_URL; ?>/client/profile.php" style="color: var(--accent); font-size: 0.9rem;">← Back to
+                Profile</a>
         </div>
     </main>
 
     <?php include __DIR__ . "/includes/footer.php"; ?>
     <script>
-        document.querySelector('.menu-toggle')?.addEventListener('click', function() {
+        document.querySelector('.menu-toggle')?.addEventListener('click', function () {
             document.querySelector('header nav').classList.toggle('open');
         });
     </script>

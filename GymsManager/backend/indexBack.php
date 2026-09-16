@@ -1,5 +1,8 @@
 <?php
-
+require_once __DIR__ . "/config.php";
+require_once __DIR__ . "/db_connect.php";
+require_once __DIR__ . "/gyms.php";
+require_once __DIR__ . "/gym_data.php";
 function write_facilities()
 {
     global $connGym;
@@ -23,50 +26,6 @@ function write_facilities()
     ";
     }
     $stmt->close();
-}
-
-function write_plans()
-{
-    global $connGym;
-    if (!isset($connGym) || $connGym == null)
-        return;
-
-    $sql = "SELECT * FROM plans";
-    $result = $connGym->query($sql);
-    if (!$result)
-        return;
-
-    $i = 0;
-    $highlightIndex = 1; // 2nd plan recommended
-
-    while ($row = $result->fetch_assoc()) {
-        $cardClass = ($i === $highlightIndex) ? 'membership-card elite' : 'membership-card';
-        $recommended = ($i === $highlightIndex) ? '<p class="price">Recommended</p>' : '';
-
-        $featuresList = array_map('trim', explode(',', $row['features'] ?? ''));
-        $featuresHtml = '';
-        foreach ($featuresList as $f) {
-            if (!empty($f)) {
-                $featuresHtml .= "<dd>" . htmlspecialchars($f) . "</dd>";
-            }
-        }
-
-        $durationText = !empty($row['duration']) ? (is_numeric($row['duration']) ? ($row['duration'] . ' days') : $row['duration']) : 'month';
-        $formattedPrice = number_format($row['price']) . ' DA / ' . htmlspecialchars($durationText);
-
-        echo "
-		<article class='{$cardClass}'>
-			<h3>" . htmlspecialchars($row['name']) . "</h3>
-			<p class='price'>{$formattedPrice}</p>
-			<dl>
-				<dt>Features</dt>
-				{$featuresHtml}
-			</dl>
-			{$recommended}
-		</article>
-		";
-        $i++;
-    }
 }
 
 function write_opening_hours_table()
@@ -95,4 +54,62 @@ function write_opening_hours_table()
         ";
     }
     echo "</table>";
+}
+
+
+function write_membership_plan_cards()
+{
+    $plans = get_plans();
+
+    $durations = get_durations();
+    $max_discount = 0;
+    foreach ($durations as $d) {
+        if (floatval($d['discount_pct']) > $max_discount)
+            $max_discount = floatval($d['discount_pct']);
+    }
+
+    $i = 0;
+    $highlightIndex = 1;
+
+    foreach ($plans as $row) {
+        $isFeatured = ($i === $highlightIndex);
+        $featuredClass = $isFeatured ? ' featured' : '';
+        $featuresList = array_map('trim', explode(',', $row['features'] ?? ''));
+        $featuresHtml = '';
+        foreach ($featuresList as $f) {
+            if (!empty($f)) {
+                $featuresHtml .= "<li>" . htmlspecialchars($f) . "</li>";
+            }
+        }
+
+        $base_price = intval($row['price']);
+        $formattedPrice = number_format($base_price) . ' DA';
+        $badge = $isFeatured ? '<span class="muted">Most popular</span>' : '<span class="muted">&nbsp;</span>';
+
+        echo "
+		<article class='plan-card{$featuredClass}' aria-labelledby='plan-title-{$row['id']}'
+			data-base-price='{$base_price}' data-plan-id='{$row['id']}'>
+			<div class='plan-title'>
+				<h3 id='plan-title-{$row['id']}'>" . htmlspecialchars($row['name']) . "</h3>
+				<div class='plan-price'>
+					<span class='price-display' id='price-display-{$row['id']}'>{$formattedPrice}</span><span class='price-unit' id='price-unit-{$row['id']}'>/month</span>
+				</div>
+				<p class='price-per-month' id='price-per-month-{$row['id']}'></p>
+				<p class='price-savings' id='price-savings-{$row['id']}'></p>
+			</div>
+
+			<ul class='plan-features'>
+				{$featuresHtml}
+			</ul>
+
+			<div class='plan-cta'>
+				{$badge}
+				<button type='button' class='btn-ghost' data-plan='" . htmlspecialchars($row['name']) . "' aria-label='Choose " . htmlspecialchars($row['name']) . "'>
+					Choose
+				</button>
+			</div>
+		</article>
+		";
+        $i++;
+    }
 }

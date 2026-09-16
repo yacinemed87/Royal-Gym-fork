@@ -26,6 +26,7 @@ function write_button($name, $path, $originPath)
 ?>
 
 
+<?php include PROJECT_ROOT . "/GymsManager/frontend/includes/notification.php"; ?>
 <header>
     <a href="<?= GYM_BASE_URL . "/index.php"; ?>">
         <span class="name"><?= $gym["name"]; ?></span>
